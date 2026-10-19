@@ -1,4 +1,7 @@
-from parsers import parse_stitch_length
+from parsers import parse_shade
 
-for t in ["28", "28,0", "1", "1,1", "2.85", "10,15,4.5", "77,30", "260"]:
-    print(t, "->", parse_stitch_length(t))
+tests = ["01-Puma Black", "Medium Gray Heather", "02-Puma White",
+         "NAVY BLAZER", "DARK GREY MELANGE", "LT PINK", "12-330"]
+
+for t in tests:
+    print(t, "->", parse_shade(t))

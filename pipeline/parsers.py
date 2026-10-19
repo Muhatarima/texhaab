@@ -152,3 +152,16 @@ def parse_gsm(text):
         return None
     values = [float(n) for n in numbers[:2]]
     return sum(values) / len(values)
+
+
+
+def parse_shade(text):
+    """Group a colour name into Light, Medium, Dark or Melange."""
+    text = str(text).upper()
+    if re.search(r"MEL|HEATHER|MARL|GRINDLE", text):
+        return "Melange"
+    if re.search(r"BLACK|NAVY|DARK|DK\b|BURGUNDY|MAROON|CHARCOAL|DEEP|OLIVE|ANTHRA", text):
+        return "Dark"
+    if re.search(r"WHITE|ECRU|IVORY|CREAM|LIGHT|LT\b|PASTEL|PALE|NATURAL|OPTIC", text):
+        return "Light"
+    return "Medium"
