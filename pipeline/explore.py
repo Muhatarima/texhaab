@@ -27,3 +27,8 @@ usable = data.dropna(subset=targets)
 print()
 print("Usable rows:", len(usable))
 print("Removed rows:", len(data) - len(usable))
+# How is each column actually written?
+for col in ["Mc Dia", "St Length", "Fab Dia"]:
+    print()
+    print("Most common values in", col)
+    print(usable[col].astype(str).value_counts().head(15))

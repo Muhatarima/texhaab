@@ -8,3 +8,5 @@ __pycache__/
 
 # Secrets
 .env
+failures.txt
+validate.txt

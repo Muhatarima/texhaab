@@ -1,6 +1,4 @@
-from parsers import parse_machine
+from parsers import parse_stitch_length
 
-print(parse_machine("34X24"))
-print(parse_machine("34x24"))
-print(parse_machine("36 X 18"))
-print(parse_machine("nonsense"))
+for t in ["28", "28,0", "1", "1,1", "2.85", "10,15,4.5", "77,30", "260"]:
+    print(t, "->", parse_stitch_length(t))
