@@ -1,0 +1,10 @@
+# Factory data never goes to GitHub
+data/
+
+# Python junk
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
