@@ -1,7 +1,7 @@
 import pandas as pd
 from parsers import (parse_machine, parse_stitch_length, parse_fabric_dia,
                      parse_fabric_type, parse_composition, has_lycra, parse_yarn,
-                     parse_gsm)
+                     parse_gsm, parse_shade, parse_yarn_type)
 
 RAW = "data/raw/Knit_parameters.xlsx"
 OUT = "data/processed/knit_clean.parquet"
@@ -40,14 +40,20 @@ data["composition"] = data["Fabrication"].apply(parse_composition)
 data["lycra"] = data["Fabrication"].apply(has_lycra)
 data["stitch_length"] = data["St Length"].apply(parse_stitch_length)
 data["gsm"] = data["GSM"].apply(parse_gsm)
+data["shade"] = data["Fab Color"].apply(parse_shade)
+data["yarn_type"] = data["Yarn Count"].apply(parse_yarn_type)
 
 # 4. Report what the parsers couldn't read
 new_cols = ["mc_dia", "gauge", "form", "fab_width", "fabric_type", "knit",
             "yarn_count", "yarn_ply", "lycra_denier", "composition", "lycra",
-            "stitch_length", "gsm"]
+            "stitch_length", "gsm", "shade", "yarn_type"]
 print()
 print("Could not parse (per column):")
 print(data[new_cols].isna().sum())
+
+print()
+print("Shade groups:", data["shade"].value_counts().to_dict())
+print("Yarn types:  ", data["yarn_type"].value_counts().to_dict())
 
 # Original columns: store as text so mixed types don't break saving
 text_cols = ["Buyer", "OrderNo", "Fabrication", "GSM", "Fab Dia",
