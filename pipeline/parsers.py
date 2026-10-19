@@ -165,3 +165,15 @@ def parse_shade(text):
     if re.search(r"WHITE|ECRU|IVORY|CREAM|LIGHT|LT\b|PASTEL|PALE|NATURAL|OPTIC", text):
         return "Light"
     return "Medium"
+
+
+def parse_yarn_type(text):
+    """Find how the main yarn was spun: Compact, Combed, Carded or Other."""
+    main_yarn = str(text).upper().split(",")[0]
+    if "COMP" in main_yarn:
+        return "Compact"
+    if re.search(r"-CH\b|COMB", main_yarn):
+        return "Combed"
+    if re.search(r"-KH\b|CARD", main_yarn):
+        return "Carded"
+    return "Other"
