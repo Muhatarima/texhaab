@@ -22,16 +22,34 @@ def load():
     return train, test
 
 
-def prepare(df, train, features=FEATURES):
+def get_categories(train):
+    """The list of known values for each category column, learned from train."""
+    return {col: [str(v) for v in sorted(train[col].dropna().unique())]
+            for col in CATEGORICAL}
+
+
+def prepare(df, train=None, features=FEATURES, categories=None):
     """Turn the inputs into the format LightGBM needs.
-    Categories are learned from train; unseen values become missing."""
+    Give either the training data or a saved categories dictionary.
+    Unseen values (e.g. a new buyer) become missing."""
+    if categories is None:
+        categories = get_categories(train)
     X = df[features].copy()
+
+    # Category columns: only values seen in training are allowed
     for col in CATEGORICAL:
         if col not in features:
             continue
-        known = sorted(train[col].dropna().unique())
+        known = categories[col]
+        X[col] = X[col].astype("string")
         X[col] = X[col].where(X[col].isin(known))
         X[col] = pd.Categorical(X[col], categories=known)
+
+    # Number columns must be real numbers, even when a value is missing
+    for col in features:
+        if col not in CATEGORICAL and col != "lycra":
+            X[col] = pd.to_numeric(X[col], errors="coerce")
+
     if "lycra" in features:
         X["lycra"] = X["lycra"].astype(int)
     return X

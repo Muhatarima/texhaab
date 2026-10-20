@@ -1,12 +1,15 @@
 # Factory data never goes to GitHub
 data/
 
-# Python junk
+# Trained models (binary files and local factory categories)
+ml/models/
+
+# Python virtual environment and cache
 __pycache__/
 *.pyc
 .venv/
 
-# Secrets
+# Secrets and temporary outputs
 .env
 failures.txt
 validate.txt
