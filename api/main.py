@@ -1,6 +1,7 @@
 from typing import Literal, Optional
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from api.predict import get_recipe
 
 app = FastAPI(title="texHAAB")
 
@@ -28,5 +29,4 @@ def home():
 
 @app.post("/recipe")
 def recipe(request: RecipeRequest):
-    # For now, just send back what we received
-    return {"received": request}
+    return get_recipe(request.model_dump())
