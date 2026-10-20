@@ -24,7 +24,7 @@ Scope for v1 is knitting only. Finishing settings (stenter temperature, padder p
 | **1** | Data pipeline: parsers, validation, rejects, tests, CI | Done |
 | **2** | ML models, saved to files, accuracy report | Done (v0) |
 | **3** | FastAPI backend (`/recipe`, `/options`, CORS, lazy-loading, Dockerfile) | **Done** |
-| **4** | Next.js frontend | Not started |
+| **4** | Next.js frontend (TypeScript + Tailwind CSS, App router) | **Done** |
 | **5** | Free deployment | Not started |
 
 ### Current accuracy on 8,849 unique test requests (Jul to Dec 2023), from `reports/accuracy.md`:
@@ -81,9 +81,10 @@ These were settled with the owner; do not reopen them without asking her.
 - [x] Lazy-load models in `api/predict.py`, then add API tests (valid request, 422 cases) that pass in CI
 - [x] Dockerfile for the backend (supports Hugging Face Spaces on port 7860 and Render with dynamic `$PORT`)
 
-### Phase 4: Next.js frontend
-- [ ] Form: Single/Double and GSM required; fabric type, composition, buyer, yarn type as dropdowns from `/options`; lycra, open/tube, width, shade
-- [ ] Result view: machine dia (two), gauge, yarn count, lycra denier, stitch length. No confidence badges, no past orders
+### Phase 4: Next.js frontend (Completed)
+- [x] Form: Single/Double and GSM required; fabric type, composition, buyer, yarn type as dropdowns from `/options`; lycra, open/tube, width, shade
+- [x] Result view: machine dia (two), gauge, yarn count, lycra denier, stitch length. No confidence badges, no past orders
+- [x] Production build verified (`next build` succeeds with zero errors)
 
 ### Phase 5: Deployment & Open Architecture Questions
 - [ ] **Model files deployment strategy**: `ml/models/` is git-ignored, so the Docker build on cloud hosts will not have models by default. Decide between:
