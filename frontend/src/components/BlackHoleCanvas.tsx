@@ -161,10 +161,10 @@ export default function BlackHoleCanvas() {
         height / 2,
         Math.max(width, height)
       );
-      baseGrad.addColorStop(0, "#09031c");
-      baseGrad.addColorStop(0.35, "#060114");
-      baseGrad.addColorStop(0.7, "#03000b");
-      baseGrad.addColorStop(1, "#020007");
+      baseGrad.addColorStop(0, "#030008");
+      baseGrad.addColorStop(0.35, "#010004");
+      baseGrad.addColorStop(0.7, "#000000");
+      baseGrad.addColorStop(1, "#000000");
       ctx.fillStyle = baseGrad;
       ctx.fillRect(0, 0, width, height);
 
