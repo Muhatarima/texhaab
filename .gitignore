@@ -1,8 +1,6 @@
 # Factory data never goes to GitHub
 data/
 
-# Trained models (binary files and local factory categories)
-ml/models/
 
 # Python virtual environment and cache
 __pycache__/
