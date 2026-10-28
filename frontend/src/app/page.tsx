@@ -10,6 +10,8 @@ import {
   RecipeRequest,
   RecipeResponse,
 } from "../types/recipe";
+import BlackHoleCanvas from "../components/BlackHoleCanvas";
+import MovingLogo from "../components/MovingLogo";
 
 export default function HomePage() {
   // Options loaded from backend GET /options
@@ -122,520 +124,617 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      {/* Top Navigation Bar */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-700 text-white flex items-center justify-center font-bold text-xl tracking-tight shadow-sm">
-              tH
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xl text-slate-900 tracking-tight">texHAAB</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
-                  Knitting AI v1.0
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">Circular Knitting Recipe Recommender</p>
-            </div>
-          </div>
+    <div className="relative min-h-screen text-purple-100 selection:bg-purple-600 selection:text-white">
+      {/* Interactive Celestial Black Hole & Starfield Canvas */}
+      <BlackHoleCanvas />
 
-          {/* Backend Connection Status Badge */}
-          <div className="flex items-center space-x-2 text-xs">
-            {loadingOptions ? (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 animate-pulse">
-                Connecting to backend...
-              </span>
-            ) : backendError ? (
-              <div className="flex items-center space-x-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-medium">
-                  <span className="w-2 h-2 mr-1.5 rounded-full bg-rose-500"></span>
-                  Backend Offline
-                </span>
-                <button
-                  onClick={loadOptions}
-                  className="px-2 py-1 text-xs bg-slate-200 hover:bg-slate-300 rounded text-slate-700 transition"
-                >
-                  Retry
-                </button>
-              </div>
-            ) : (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-medium">
-                <span className="w-2 h-2 mr-1.5 rounded-full bg-emerald-500"></span>
-                Backend Ready
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Ambient Cosmic Radial Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[140px]" />
+        <div className="absolute bottom-1/4 left-10 w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[160px]" />
+        <div className="absolute top-1/2 right-10 w-80 h-80 bg-indigo-600/10 rounded-full blur-[130px]" />
+      </div>
 
-      {/* Main Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {backendError && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-start space-x-3">
-            <span className="text-xl">⚠️</span>
-            <div className="text-sm">
-              <p className="font-semibold">Backend connection notice:</p>
-              <p className="mt-0.5">
-                Ensure your FastAPI server is running (`uvicorn api.main:app --reload`).{" "}
-                <button
-                  onClick={loadOptions}
-                  className="underline font-semibold hover:text-amber-900 ml-1"
-                >
-                  Click to reconnect.
-                </button>
-              </p>
-            </div>
-          </div>
-        )}
+      {/* Content wrapper above canvas */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Top Glossy Glass Navigation Bar */}
+        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#070114]/75 border-b border-purple-500/20 shadow-[0_4px_35px_rgba(76,29,149,0.25)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            {/* Animated texHAAB Logo with Kinetic Moving Letters */}
+            <MovingLogo />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Input Form (7 cols) */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-            <div className="border-b border-slate-100 pb-5 mb-6">
-              <h1 className="text-xl font-bold text-slate-900">Buyer Order Specifications</h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Enter buyer requirements to generate machine dia, gauge, yarn count, and stitch length.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Section 1: Required Knits & Weight */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Knit Structure */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                    Knit Structure <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
-                    <button
-                      type="button"
-                      onClick={() => setKnit("Single")}
-                      className={`py-2 text-sm font-semibold rounded-md transition ${
-                        knit === "Single"
-                          ? "bg-white text-teal-800 shadow-xs border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      Single Knit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setKnit("Double")}
-                      className={`py-2 text-sm font-semibold rounded-md transition ${
-                        knit === "Double"
-                          ? "bg-white text-teal-800 shadow-xs border border-slate-200"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      Double Knit
-                    </button>
-                  </div>
+            {/* Backend Connection Status Badge */}
+            <div className="flex items-center space-x-3 text-xs">
+              {loadingOptions ? (
+                <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                  <span className="font-medium">Connecting to Cosmos...</span>
                 </div>
+              ) : backendError ? (
+                <div className="flex items-center space-x-2">
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-rose-950/60 border border-rose-500/40 text-rose-300 font-medium backdrop-blur-md shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+                    <span className="w-2 h-2 mr-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e] animate-pulse" />
+                    Backend Offline
+                  </span>
+                  <button
+                    onClick={loadOptions}
+                    className="px-3 py-1.5 text-xs bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/40 rounded-full text-purple-100 font-semibold transition-all duration-200 hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                  >
+                    Reconnect
+                  </button>
+                </div>
+              ) : (
+                <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-emerald-500/40 text-emerald-300 font-medium backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+                  <span className="relative flex h-2 w-2 mr-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                  </span>
+                  Neural Engine Active
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
 
-                {/* Target GSM */}
+        {/* Hero Banner Sub-Header */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-purple-950/50 via-[#180a33]/60 to-purple-900/40 border border-purple-500/20 backdrop-blur-xl shadow-[0_8px_32px_rgba(112,26,230,0.18)]">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/30 text-purple-200 text-[11px] font-bold uppercase tracking-wider">
+                  Industrial Textile AI
+                </span>
+                <span className="text-purple-400/60 text-xs">•</span>
+                <span className="text-purple-300/80 text-xs font-medium">
+                  Bangladesh Knitting Factory Optimization
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-white via-purple-100 to-fuchsia-200 bg-clip-text text-transparent">
+                Circular Knitting Machine Recipe Recommender
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="px-3 py-1.5 rounded-xl bg-purple-900/40 border border-purple-400/20 text-purple-200">
+                <span className="text-fuchsia-400 font-bold">96.3%</span> Gauge Accuracy
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-purple-900/40 border border-purple-400/20 text-purple-200">
+                <span className="text-purple-300 font-bold">Top 2</span> Machine Dia
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-purple-900/40 border border-purple-400/20 text-purple-200">
+                <span className="text-cyan-400 font-bold">75k+</span> Trained Orders
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Main Workspace */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
+          {backendError && (
+            <div className="mb-6 p-4 rounded-2xl bg-purple-950/70 border border-amber-500/40 text-amber-200 flex items-start space-x-3.5 backdrop-blur-xl shadow-[0_0_25px_rgba(245,158,11,0.2)]">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-lg shrink-0">
+                ⚠️
+              </div>
+              <div className="text-sm">
+                <p className="font-bold text-amber-100">Local Neural Backend Notice</p>
+                <p className="text-amber-200/90 mt-0.5">
+                  FastAPI service is not detected on port 8000. Start it with{" "}
+                  <code className="px-2 py-0.5 rounded bg-black/40 border border-amber-500/30 font-mono text-xs text-amber-300">
+                    uvicorn api.main:app --reload
+                  </code>{" "}
+                  or{" "}
+                  <button
+                    onClick={loadOptions}
+                    className="underline font-bold hover:text-white transition"
+                  >
+                    click here to reconnect
+                  </button>
+                  .
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Input Form (7 cols) */}
+            <div className="lg:col-span-7 glossy-panel glossy-card-interactive rounded-3xl p-6 sm:p-8">
+              {/* Card Header */}
+              <div className="border-b border-purple-500/20 pb-5 mb-6 flex items-center justify-between">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Target GSM <span className="text-rose-500">*</span>
-                    </label>
-                    <span className="text-xs text-slate-400">60 - 600</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_10px_#c084fc]" />
+                    <h1 className="text-xl font-extrabold text-white tracking-tight">
+                      Buyer Order Specifications
+                    </h1>
                   </div>
-                  <input
-                    type="number"
-                    min={60}
-                    max={600}
-                    required
-                    value={gsm}
-                    onChange={(e) => setGsm(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="e.g. 160"
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm font-medium"
-                  />
-                  {/* Preset Tags */}
-                  <div className="flex space-x-1.5 mt-2">
-                    {[140, 160, 180, 220, 260].map((val) => (
+                  <p className="text-xs text-purple-300/70 mt-1">
+                    Feed parameters to calculate optimal machine diameter, gauge, yarn count, and stitch length.
+                  </p>
+                </div>
+                <div className="text-2xl opacity-60">✨</div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Section 1: Required Knits & Weight */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* Knit Structure Toggle */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-2">
+                      Knit Structure <span className="text-fuchsia-400">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-[#120626]/80 border border-purple-500/30">
                       <button
                         type="button"
-                        key={val}
-                        onClick={() => setGsm(val)}
-                        className={`text-[11px] px-2 py-0.5 rounded border transition ${
-                          gsm === val
-                            ? "bg-teal-50 border-teal-300 text-teal-800 font-semibold"
-                            : "border-slate-200 text-slate-500 hover:bg-slate-100"
+                        onClick={() => setKnit("Single")}
+                        className={`py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 ${
+                          knit === "Single"
+                            ? "bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-purple-300/50"
+                            : "text-purple-300/70 hover:text-white hover:bg-purple-900/30"
                         }`}
                       >
-                        {val}
+                        Single Knit
                       </button>
-                    ))}
+                      <button
+                        type="button"
+                        onClick={() => setKnit("Double")}
+                        className={`py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 ${
+                          knit === "Double"
+                            ? "bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-purple-300/50"
+                            : "text-purple-300/70 hover:text-white hover:bg-purple-900/30"
+                        }`}
+                      >
+                        Double Knit
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Target GSM */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-purple-300">
+                        Target GSM <span className="text-fuchsia-400">*</span>
+                      </label>
+                      <span className="text-[11px] font-mono text-purple-400/60">60 - 600 g/m²</span>
+                    </div>
+                    <input
+                      type="number"
+                      min={60}
+                      max={600}
+                      required
+                      value={gsm}
+                      onChange={(e) => setGsm(e.target.value === "" ? "" : Number(e.target.value))}
+                      placeholder="e.g. 160"
+                      className="w-full px-4 py-2.5 glossy-input text-sm font-bold"
+                    />
+
+                    {/* Cosmic Preset Tags */}
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                      <span className="text-[10px] text-purple-400/60 mr-1">Presets:</span>
+                      {[140, 160, 180, 220, 260].map((val) => (
+                        <button
+                          type="button"
+                          key={val}
+                          onClick={() => setGsm(val)}
+                          className={`text-[11px] px-2.5 py-0.5 rounded-lg border transition-all duration-200 font-semibold ${
+                            gsm === val
+                              ? "bg-purple-600/50 border-purple-300 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                              : "border-purple-500/30 text-purple-300/70 hover:bg-purple-900/40 hover:text-white"
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Section 2: Core Fabric Identity */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Fabric Type */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                    Fabric Type
-                  </label>
-                  <select
-                    value={fabricType}
-                    onChange={(e) => setFabricType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white"
-                  >
-                    <option value="">-- Any / Auto Detect --</option>
-                    {options?.fabric_type?.map((ft) => (
-                      <option key={ft} value={ft}>
-                        {ft}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Fibre Composition */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                    Composition
-                  </label>
-                  <select
-                    value={composition}
-                    onChange={(e) => setComposition(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white"
-                  >
-                    <option value="">-- Any / Auto Detect --</option>
-                    {options?.composition?.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Lycra / Spandex Checkbox */}
-              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
-                <div>
-                  <span className="text-sm font-semibold text-slate-900 block">Contains Lycra / Elastane</span>
-                  <span className="text-xs text-slate-500">
-                    If checked, texHAAB will recommend the Lycra denier setup.
-                  </span>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={lycra}
-                    onChange={(e) => setLycra(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                </label>
-              </div>
-
-              {/* Section 3: Buyer & Optional Parameters */}
-              <div className="pt-2 border-t border-slate-100">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                  Additional Floor & Order Details (Optional)
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Buyer */}
+                {/* Section 2: Fabric Identity */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* Fabric Type */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Buyer Name
+                    <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-2">
+                      Fabric Type
                     </label>
                     <select
-                      value={buyer}
-                      onChange={(e) => setBuyer(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500"
+                      value={fabricType}
+                      onChange={(e) => setFabricType(e.target.value)}
+                      className="w-full px-3.5 py-2.5 glossy-input text-sm"
                     >
-                      <option value="">-- Optional / Select Buyer --</option>
-                      {options?.buyer?.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
+                      <option value="">-- Any / Auto Detect --</option>
+                      {options?.fabric_type?.map((ft) => (
+                        <option key={ft} value={ft}>
+                          {ft}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Yarn Type */}
+                  {/* Composition */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Yarn Spinning Type
+                    <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-2">
+                      Fibre Composition
                     </label>
                     <select
-                      value={yarnType}
-                      onChange={(e) => setYarnType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500"
+                      value={composition}
+                      onChange={(e) => setComposition(e.target.value)}
+                      className="w-full px-3.5 py-2.5 glossy-input text-sm"
                     >
-                      <option value="">-- Optional / Any --</option>
-                      {options?.yarn_type?.map((yt) => (
-                        <option key={yt} value={yt}>
-                          {yt}
+                      <option value="">-- Any / Auto Detect --</option>
+                      {options?.composition?.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
                         </option>
                       ))}
                     </select>
                   </div>
+                </div>
 
-                  {/* Shade */}
+                {/* Lycra / Spandex Card */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#180830]/60 to-purple-950/40 border border-purple-500/25 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Color Shade
-                    </label>
-                    <select
-                      value={shade}
-                      onChange={(e) => setShade(e.target.value as ShadeType)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500"
-                    >
-                      {options?.shade?.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      )) || (
-                        <>
-                          <option value="Light">Light</option>
-                          <option value="Medium">Medium</option>
-                          <option value="Dark">Dark</option>
-                          <option value="Melange">Melange</option>
-                        </>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-bold text-white">Contains Lycra / Elastane</span>
+                      {lycra && (
+                        <span className="px-2 py-0.5 rounded-full bg-fuchsia-500/30 border border-fuchsia-400/50 text-fuchsia-200 text-[10px] font-bold">
+                          Elastic Knit Active
+                        </span>
                       )}
-                    </select>
+                    </div>
+                    <span className="text-xs text-purple-300/70 block mt-0.5">
+                      Enables AI Lycra denier recommendation model.
+                    </span>
                   </div>
 
-                  {/* Form & Finished Width */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={lycra}
+                      onChange={(e) => setLycra(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-12 h-6 bg-purple-950/80 border border-purple-500/40 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:border-purple-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-[0_0_10px_rgba(255,255,255,0.8)] peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-fuchsia-500 peer-checked:shadow-[0_0_18px_rgba(217,70,239,0.7)]" />
+                  </label>
+                </div>
+
+                {/* Section 3: Buyer & Optional Parameters */}
+                <div className="pt-2 border-t border-purple-500/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                      Additional Factory Floor & Order Parameters
+                    </span>
+                    <span className="text-[11px] text-purple-400/60">Optional</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Buyer */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Form
+                      <label className="block text-xs font-semibold text-purple-300 mb-1.5">
+                        Buyer Name
                       </label>
                       <select
-                        value={form}
-                        onChange={(e) => setForm(e.target.value as FormType | "")}
-                        className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500"
+                        value={buyer}
+                        onChange={(e) => setBuyer(e.target.value)}
+                        className="w-full px-3 py-2 glossy-input text-xs sm:text-sm"
                       >
-                        <option value="">Any</option>
-                        <option value="Open">Open</option>
-                        <option value="Tube">Tube</option>
+                        <option value="">-- Optional / Select Buyer --</option>
+                        {options?.buyer?.map((b) => (
+                          <option key={b} value={b}>
+                            {b}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
+                    {/* Yarn Type */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Width (in)
+                      <label className="block text-xs font-semibold text-purple-300 mb-1.5">
+                        Yarn Spinning Type
                       </label>
-                      <input
-                        type="number"
-                        min={10}
-                        max={120}
-                        value={fabWidth}
-                        onChange={(e) => setFabWidth(e.target.value === "" ? "" : Number(e.target.value))}
-                        placeholder="e.g. 70"
-                        className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500"
-                      />
+                      <select
+                        value={yarnType}
+                        onChange={(e) => setYarnType(e.target.value)}
+                        className="w-full px-3 py-2 glossy-input text-xs sm:text-sm"
+                      >
+                        <option value="">-- Optional / Any --</option>
+                        {options?.yarn_type?.map((yt) => (
+                          <option key={yt} value={yt}>
+                            {yt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Shade */}
+                    <div>
+                      <label className="block text-xs font-semibold text-purple-300 mb-1.5">
+                        Color Shade
+                      </label>
+                      <select
+                        value={shade}
+                        onChange={(e) => setShade(e.target.value as ShadeType)}
+                        className="w-full px-3 py-2 glossy-input text-xs sm:text-sm"
+                      >
+                        {options?.shade?.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        )) || (
+                          <>
+                            <option value="Light">Light</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Dark">Dark</option>
+                            <option value="Melange">Melange</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+
+                    {/* Form & Width */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-300 mb-1.5">
+                          Form
+                        </label>
+                        <select
+                          value={form}
+                          onChange={(e) => setForm(e.target.value as FormType | "")}
+                          className="w-full px-2.5 py-2 glossy-input text-xs sm:text-sm"
+                        >
+                          <option value="">Any</option>
+                          <option value="Open">Open</option>
+                          <option value="Tube">Tube</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-300 mb-1.5">
+                          Width (in)
+                        </label>
+                        <input
+                          type="number"
+                          min={10}
+                          max={120}
+                          value={fabWidth}
+                          onChange={(e) => setFabWidth(e.target.value === "" ? "" : Number(e.target.value))}
+                          placeholder="e.g. 70"
+                          className="w-full px-2.5 py-2 glossy-input text-xs sm:text-sm"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {recipeError && (
-                <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
-                  {recipeError}
-                </div>
-              )}
+                {recipeError && (
+                  <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-sm flex items-center space-x-2">
+                    <span>⚠️</span>
+                    <span>{recipeError}</span>
+                  </div>
+                )}
 
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-3 pt-3">
-                <button
-                  type="submit"
-                  disabled={calculating}
-                  className="flex-1 py-3 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold shadow-sm transition disabled:opacity-50 flex items-center justify-center space-x-2"
-                >
-                  {calculating ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        ></path>
-                      </svg>
-                      <span>Calculating Recipe...</span>
-                    </>
-                  ) : (
-                    <span>Recommend Knitting Recipe</span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="py-3 px-4 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-100 transition"
-                >
-                  Reset
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Right Column: Output Card (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-              <div className="border-b border-slate-100 pb-4 mb-6 flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Knitting Setup</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Floor specification output</p>
-                </div>
-                {recipe && (
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-3.5 pt-3">
                   <button
-                    onClick={handleCopySetup}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    type="submit"
+                    disabled={calculating}
+                    className="flex-1 py-3.5 px-6 rounded-2xl glossy-btn-cosmic text-white font-extrabold text-sm sm:text-base flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
-                    {copied ? "Copied!" : "Copy Setup"}
+                    {calculating ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8H4z"
+                          />
+                        </svg>
+                        <span>Synthesizing Recipe...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>⚡</span>
+                        <span>Recommend Knitting Recipe</span>
+                      </>
+                    )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="py-3.5 px-5 rounded-2xl bg-purple-950/50 border border-purple-500/30 text-purple-300 hover:text-white hover:bg-purple-900/60 transition-all duration-200 text-sm font-semibold"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Right Column: Output Card (5 cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="glossy-panel glossy-card-interactive rounded-3xl p-6 sm:p-8">
+                <div className="border-b border-purple-500/20 pb-4 mb-6 flex justify-between items-center">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" />
+                      <h2 className="text-xl font-extrabold text-white">Knitting Setup Output</h2>
+                    </div>
+                    <p className="text-xs text-purple-300/70 mt-0.5">Floor machine specification</p>
+                  </div>
+
+                  {recipe && (
+                    <button
+                      onClick={handleCopySetup}
+                      className="text-xs font-bold px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/40 text-purple-100 transition-all duration-200 shadow-[0_0_12px_rgba(168,85,247,0.3)] flex items-center space-x-1.5"
+                    >
+                      {copied ? (
+                        <>
+                          <span className="text-emerald-400">✓</span>
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📋</span>
+                          <span>Copy Setup</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {!recipe ? (
+                  <div className="py-14 px-4 text-center">
+                    <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                      {/* Animated Hologram Singularity */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600 via-fuchsia-600 to-indigo-600 opacity-40 blur-lg animate-pulse" />
+                      <div className="absolute inset-1 rounded-full border border-purple-400/40 animate-[spin_10s_linear_infinite]" />
+                      <div className="relative w-14 h-14 rounded-2xl bg-[#140728] border border-purple-400/50 flex items-center justify-center text-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]">
+                        ⚙️
+                      </div>
+                    </div>
+                    <h3 className="text-base font-bold text-white">No Recipe Calculated Yet</h3>
+                    <p className="text-xs text-purple-300/70 mt-1.5 max-w-xs mx-auto leading-relaxed">
+                      Select buyer order specifications and click &quot;Recommend Knitting Recipe&quot; to synthesize machine setup.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Top 2 Machine Dia Hero Card */}
+                    <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-purple-900/60 via-[#210942]/80 to-purple-950/90 border border-purple-400/50 shadow-[0_0_30px_rgba(168,85,247,0.25),inset_0_1px_2px_rgba(255,255,255,0.3)]">
+                      {/* Ambient Accent Light */}
+                      <div className="absolute -right-8 -top-8 w-28 h-28 bg-fuchsia-500/20 rounded-full blur-2xl pointer-events-none" />
+
+                      <span className="text-[11px] font-extrabold uppercase tracking-widest text-fuchsia-300 block mb-1">
+                        Machine Diameter (Top 2 Options)
+                      </span>
+                      <div className="flex items-baseline space-x-3 my-1">
+                        <span className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-white via-purple-100 to-fuchsia-200 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(216,180,254,0.6)]">
+                          {recipe.machine_dia[0]}&quot;
+                        </span>
+                        <span className="text-lg font-bold text-purple-400/80">or</span>
+                        <span className="text-3xl sm:text-4xl font-extrabold text-purple-200 drop-shadow-[0_0_10px_rgba(192,132,252,0.4)]">
+                          {recipe.machine_dia[1]}&quot;
+                        </span>
+                      </div>
+                      <p className="text-xs text-purple-300/80 mt-1 leading-relaxed">
+                        Factory floor can run on either machine depending on open slot availability.
+                      </p>
+                    </div>
+
+                    {/* Quantum Spec Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Gauge */}
+                      <div className="p-4 rounded-2xl bg-[#14082b]/80 border border-purple-500/30 hover:border-purple-400/50 transition-colors">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block mb-1">
+                          Machine Gauge
+                        </span>
+                        <div className="text-2xl font-black text-white flex items-baseline space-x-1">
+                          <span>{recipe.gauge}</span>
+                          <span className="text-xs font-semibold text-purple-400">G</span>
+                        </div>
+                      </div>
+
+                      {/* Yarn Count */}
+                      <div className="p-4 rounded-2xl bg-[#14082b]/80 border border-purple-500/30 hover:border-purple-400/50 transition-colors">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block mb-1">
+                          Yarn Count
+                        </span>
+                        <div className="text-2xl font-black text-white flex items-baseline space-x-1">
+                          <span>{recipe.yarn_count}s</span>
+                          <span className="text-xs font-semibold text-purple-400">Ne</span>
+                        </div>
+                      </div>
+
+                      {/* Stitch Length */}
+                      <div className="p-4 rounded-2xl bg-[#14082b]/80 border border-purple-500/30 hover:border-purple-400/50 transition-colors">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block mb-1">
+                          Stitch Length
+                        </span>
+                        <div className="text-2xl font-black text-white">
+                          {recipe.stitch_length}
+                        </div>
+                      </div>
+
+                      {/* Lycra Denier */}
+                      <div
+                        className={`p-4 rounded-2xl border transition-colors ${
+                          lycra
+                            ? "bg-gradient-to-br from-fuchsia-950/60 to-purple-950/60 border-fuchsia-500/40 shadow-[0_0_20px_rgba(217,70,239,0.2)]"
+                            : "bg-[#14082b]/50 border-purple-500/20 text-purple-400/50"
+                        }`}
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-wider block mb-1">
+                          Lycra Denier
+                        </span>
+                        <div className="text-2xl font-black">
+                          {lycra && recipe.lycra_denier ? (
+                            <div className="text-fuchsia-200 flex items-baseline space-x-1">
+                              <span>{recipe.lycra_denier}</span>
+                              <span className="text-xs font-semibold text-fuchsia-400">D</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs font-medium text-purple-400/50">Rigid / None</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Context Summary Pill */}
+                    <div className="pt-3 text-xs text-purple-300/80 border-t border-purple-500/20 flex flex-wrap gap-1.5">
+                      <span className="px-2.5 py-1 rounded-lg bg-purple-900/50 border border-purple-500/30 font-semibold">
+                        {knit} Knit
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-purple-900/50 border border-purple-500/30 font-semibold">
+                        {gsm} GSM
+                      </span>
+                      {fabricType && (
+                        <span className="px-2.5 py-1 rounded-lg bg-purple-900/50 border border-purple-500/30 font-semibold">
+                          {fabricType}
+                        </span>
+                      )}
+                      {composition && (
+                        <span className="px-2.5 py-1 rounded-lg bg-purple-900/50 border border-purple-500/30 font-semibold">
+                          {composition}
+                        </span>
+                      )}
+                      {buyer && (
+                        <span className="px-2.5 py-1 rounded-lg bg-purple-900/50 border border-purple-500/30 font-semibold">
+                          Buyer: {buyer}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {!recipe ? (
-                <div className="py-12 px-4 text-center">
-                  <div className="w-14 h-14 mx-auto rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-2xl font-semibold mb-4">
-                    ⚙️
-                  </div>
-                  <h3 className="text-sm font-semibold text-slate-800">No Recipe Calculated Yet</h3>
-                  <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                    Fill in the buyer order details and click &quot;Recommend Knitting Recipe&quot; to see the recommended machine setup.
-                  </p>
+              {/* Factory Floor Rules & Guidance */}
+              <div className="glossy-panel rounded-3xl p-5 text-xs text-purple-300/80 space-y-2.5">
+                <div className="font-extrabold text-white flex items-center space-x-2">
+                  <span className="text-purple-400">📋</span>
+                  <span>Knitting Floor Rules & Standards</span>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Top 2 Machine Dia */}
-                  <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/80">
-                    <span className="text-xs font-bold uppercase tracking-wider text-teal-800 block mb-1">
-                      Machine Diameter (Top 2 Options)
-                    </span>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-extrabold text-teal-950">
-                        {recipe.machine_dia[0]}&quot;
-                      </span>
-                      <span className="text-lg font-medium text-teal-700">or</span>
-                      <span className="text-2xl font-bold text-teal-900">
-                        {recipe.machine_dia[1]}&quot;
-                      </span>
-                    </div>
-                    <p className="text-xs text-teal-700 mt-1.5">
-                      Knitting floor can use either diameter depending on available machines.
-                    </p>
-                  </div>
-
-                  {/* Grid for Gauge, Yarn Count, Stitch Length */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Gauge */}
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
-                        Machine Gauge
-                      </span>
-                      <div className="text-2xl font-extrabold text-slate-900">
-                        {recipe.gauge}{" "}
-                        <span className="text-sm font-medium text-slate-500">G</span>
-                      </div>
-                    </div>
-
-                    {/* Yarn Count */}
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
-                        Yarn Count
-                      </span>
-                      <div className="text-2xl font-extrabold text-slate-900">
-                        {recipe.yarn_count}s{" "}
-                        <span className="text-sm font-medium text-slate-500">Ne</span>
-                      </div>
-                    </div>
-
-                    {/* Stitch Length */}
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
-                        Stitch Length
-                      </span>
-                      <div className="text-2xl font-extrabold text-slate-900">
-                        {recipe.stitch_length}
-                      </div>
-                    </div>
-
-                    {/* Lycra Denier */}
-                    <div
-                      className={`p-4 rounded-xl border ${
-                        lycra
-                          ? "bg-amber-50 border-amber-200 text-amber-950"
-                          : "bg-slate-50 border-slate-200 text-slate-400"
-                      }`}
-                    >
-                      <span className="text-xs font-bold uppercase tracking-wider block mb-1">
-                        Lycra Denier
-                      </span>
-                      <div className="text-2xl font-extrabold">
-                        {lycra && recipe.lycra_denier ? (
-                          <>
-                            {recipe.lycra_denier}{" "}
-                            <span className="text-sm font-medium">D</span>
-                          </>
-                        ) : (
-                          <span className="text-sm font-medium text-slate-400">Not Applicable</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Order Context Summary Pill */}
-                  <div className="pt-2 text-xs text-slate-500 border-t border-slate-100 flex flex-wrap gap-1.5">
-                    <span className="px-2 py-0.5 rounded bg-slate-100 font-medium">
-                      {knit} Knit
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-slate-100 font-medium">
-                      {gsm} GSM
-                    </span>
-                    {fabricType && (
-                      <span className="px-2 py-0.5 rounded bg-slate-100 font-medium">
-                        {fabricType}
-                      </span>
-                    )}
-                    {composition && (
-                      <span className="px-2 py-0.5 rounded bg-slate-100 font-medium">
-                        {composition}
-                      </span>
-                    )}
-                    {buyer && (
-                      <span className="px-2 py-0.5 rounded bg-slate-100 font-medium">
-                        Buyer: {buyer}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Factory Standards Guidance Card */}
-            <div className="bg-slate-100/70 rounded-2xl border border-slate-200 p-5 text-xs text-slate-600 space-y-2">
-              <div className="font-bold text-slate-800 flex items-center space-x-1.5">
-                <span>📋</span>
-                <span>Factory Floor Rules</span>
+                <ul className="list-disc list-inside space-y-1.5 text-purple-300/70">
+                  <li>Machine diameter shows top 2 candidates to fit active factory inventory.</li>
+                  <li>Single/Double knit structure and GSM are mandatory inputs.</li>
+                  <li>Inference models trained on historical Bangladesh factory production rows.</li>
+                </ul>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-slate-500">
-                <li>Dia is shown as top 2 options because the floor utilizes open machines.</li>
-                <li>Single / Double knit and GSM are required for all recommendations.</li>
-                <li>Settings are validated on historical factory order lines.</li>
-              </ul>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+
+        {/* Footer */}
+        <footer className="relative z-10 border-t border-purple-500/20 py-6 text-center text-xs text-purple-400/60 backdrop-blur-md bg-[#050110]/50">
+          <p>© 2026 texHAAB · Circular Knitting Space-Lab · Deep Cosmic Edition</p>
+        </footer>
+      </div>
     </div>
   );
 }

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "texHAAB | AI Knitting Recipe Recommender",
-  description: "AI-driven knitting machine setup recommender for knit-fabric factories",
+  title: "texHAAB | AI Knitting Recipe Recommender (Space-Lab Edition)",
+  description: "AI-driven circular knitting machine setup recommender with cosmic neural intelligence",
 };
 
 export default function RootLayout({
@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased font-sans">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`}>
+      <body className="min-h-screen bg-[#030014] text-purple-100 antialiased font-sans selection:bg-purple-500 selection:text-white overflow-x-hidden">
         {children}
       </body>
     </html>
