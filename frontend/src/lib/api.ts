@@ -1,9 +1,32 @@
 import { RecipeOptions, RecipeRequest, RecipeResponse } from "../types/recipe";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const CANDIDATE_URLS = process.env.NEXT_PUBLIC_API_URL
+  ? [process.env.NEXT_PUBLIC_API_URL]
+  : ["http://127.0.0.1:8080", "http://127.0.0.1:8000", "http://localhost:8080", "http://localhost:8000"];
+
+let activeApiBase: string | null = null;
+
+async function getApiBase(): Promise<string> {
+  if (activeApiBase) return activeApiBase;
+
+  for (const candidate of CANDIDATE_URLS) {
+    try {
+      const res = await fetch(`${candidate}/`, { method: "GET", cache: "no-store" });
+      if (res.ok) {
+        activeApiBase = candidate;
+        return activeApiBase;
+      }
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return CANDIDATE_URLS[0];
+}
 
 export async function fetchOptions(): Promise<RecipeOptions> {
-  const res = await fetch(`${API_BASE}/options`, {
+  const base = await getApiBase();
+  const res = await fetch(`${base}/options`, {
     cache: "no-store",
   });
   if (!res.ok) {
@@ -13,6 +36,7 @@ export async function fetchOptions(): Promise<RecipeOptions> {
 }
 
 export async function fetchRecipe(req: RecipeRequest): Promise<RecipeResponse> {
+  const base = await getApiBase();
   const cleanBody: Record<string, unknown> = {
     knit: req.knit,
     gsm: Number(req.gsm),
@@ -29,7 +53,7 @@ export async function fetchRecipe(req: RecipeRequest): Promise<RecipeResponse> {
     cleanBody.fab_width = Number(req.fab_width);
   }
 
-  const res = await fetch(`${API_BASE}/recipe`, {
+  const res = await fetch(`${base}/recipe`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -8,8 +8,12 @@ from api.predict import get_recipe, get_options
 app = FastAPI(title="texHAAB")
 
 # Configure CORS: Allow local Next.js dev and any production URLs set via ALLOWED_ORIGINS
-# (e.g. ALLOWED_ORIGINS="https://texhaab.vercel.app")
-default_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+default_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3100",
+    "http://127.0.0.1:3100",
+]
 env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
 allowed_origins = list(set(default_origins + env_origins))
 

@@ -85,6 +85,10 @@ These were settled with the owner; do not reopen them without asking her.
 - [x] Form: Single/Double and GSM required; fabric type, composition, buyer, yarn type as dropdowns from `/options`; lycra, open/tube, width, shade
 - [x] Result view: machine dia (two), gauge, yarn count, lycra denier, stitch length. No confidence badges, no past orders
 - [x] Production build verified (`next build` succeeds with zero errors)
+- [x] **Dark Purple Glossy Blackhole Space Theme**:
+  - Cosmic HTML5 Canvas (`BlackHoleCanvas.tsx`) featuring 60fps event horizon, relativistic accretion disk, twinkling starfield, and mouse-reactive gravitational lensing.
+  - Kinetic `texHAAB` moving logo (`MovingLogo.tsx`) with sinusoidal undulating letter wave animations, counter-rotating orbit rings, and celestial photon particle.
+  - Glassmorphic purple panels, glowing neon highlights, and custom styled inputs.
 
 ### Phase 5: Deployment & Open Architecture Questions
 - [ ] **Model files deployment strategy**: `ml/models/` is git-ignored, so the Docker build on cloud hosts will not have models by default. Decide between:
