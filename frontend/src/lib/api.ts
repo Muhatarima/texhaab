@@ -1,15 +1,38 @@
 import { RecipeOptions, RecipeRequest, RecipeResponse } from "../types/recipe";
 
-const CANDIDATE_URLS = process.env.NEXT_PUBLIC_API_URL
-  ? [process.env.NEXT_PUBLIC_API_URL]
-  : ["http://127.0.0.1:8080", "http://127.0.0.1:8000", "http://localhost:8080", "http://localhost:8000"];
-
 let activeApiBase: string | null = null;
 
-async function getApiBase(): Promise<string> {
+export function getCustomBackendUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("texhaab_custom_backend");
+}
+
+export function setCustomBackendUrl(url: string | null) {
+  if (typeof window === "undefined") return;
+  if (!url) {
+    localStorage.removeItem("texhaab_custom_backend");
+    activeApiBase = null;
+  } else {
+    const cleanUrl = url.trim().replace(/\/+$/, "");
+    localStorage.setItem("texhaab_custom_backend", cleanUrl);
+    activeApiBase = cleanUrl;
+  }
+}
+
+export async function getApiBase(): Promise<string> {
   if (activeApiBase) return activeApiBase;
 
-  for (const candidate of CANDIDATE_URLS) {
+  const custom = getCustomBackendUrl();
+  const defaultList = [
+    custom,
+    process.env.NEXT_PUBLIC_API_URL,
+    "http://127.0.0.1:8080",
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+  ].filter(Boolean) as string[];
+
+  for (const candidate of defaultList) {
     try {
       const res = await fetch(`${candidate}/`, { method: "GET", cache: "no-store" });
       if (res.ok) {
@@ -21,7 +44,8 @@ async function getApiBase(): Promise<string> {
     }
   }
 
-  return CANDIDATE_URLS[0];
+  // default fallback
+  return defaultList[0] || "http://127.0.0.1:8080";
 }
 
 export async function fetchOptions(): Promise<RecipeOptions> {
@@ -30,7 +54,7 @@ export async function fetchOptions(): Promise<RecipeOptions> {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(`Failed to load options from backend (HTTP ${res.status})`);
+    throw new Error(`Failed to load options (HTTP ${res.status})`);
   }
   return res.json();
 }
@@ -67,7 +91,7 @@ export async function fetchRecipe(req: RecipeRequest): Promise<RecipeResponse> {
       const msg = errorData.detail.map((d: { msg: string; loc?: string[] }) => d.msg).join(", ");
       throw new Error(msg || "Validation error");
     }
-    throw new Error(errorData?.message || `Failed to generate recipe (HTTP ${res.status})`);
+    throw new Error(errorData?.message || `Failed to calculate recipe (HTTP ${res.status})`);
   }
 
   return res.json();
