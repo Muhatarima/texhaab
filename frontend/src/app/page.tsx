@@ -17,7 +17,7 @@ export default function HomePage() {
   const [options, setOptions] = useState<RecipeOptions | null>(null);
   const [, setLoadingOptions] = useState<boolean>(true);
 
-  // Form State (Order Specifications only - Yarn Count is an OUTPUT)
+  // Form State
   const [knit, setKnit] = useState<KnitType>("Single");
   const [gsm, setGsm] = useState<number | "">(160);
   const [fabricType, setFabricType] = useState<string>("Single Jersey");
@@ -50,10 +50,15 @@ export default function HomePage() {
     }
   }
 
-  // Update knit structure automatically when a rib or double knit is chosen
   function handleFabricTypeChange(val: string) {
     setFabricType(val);
-    if (val.includes("Rib") || val === "Interlock" || val === "Pointelle" || val === "Waffle" || val === "Pique Interlock") {
+    if (
+      val.includes("Rib") ||
+      val === "Interlock" ||
+      val === "Pointelle" ||
+      val === "Waffle" ||
+      val === "Pique Interlock"
+    ) {
       setKnit("Double");
     } else {
       setKnit("Single");
@@ -109,14 +114,11 @@ export default function HomePage() {
   function handleCopySetup() {
     if (!recipe) return;
     const text = [
-      `texHAAB KNITTING SETUP SPECIFICATION`,
-      `-----------------------------------`,
-      `Order: ${knit} | GSM: ${gsm} | Fabric: ${fabricType || "N/A"} | Composition: ${composition || "N/A"}`,
-      `Machine Setup: ${recipe.machine_setup?.[0] || `${recipe.machine_dia[0]}X${recipe.gauge}`} (${recipe.machine_dia[0]}" × ${recipe.gauge}G)`,
-      `Secondary Setup: ${recipe.machine_setup?.[1] || `${recipe.machine_dia[1]}X${recipe.gauge}`} (${recipe.machine_dia[1]}" × ${recipe.gauge}G)`,
-      `Yarn Count Output: ${recipe.yarn_count}s Ne (${recipe.yarn_spec || `${recipe.yarn_count}s/1 Ne`})`,
+      `Order: ${knit} | ${gsm} GSM | ${fabricType || "N/A"} | ${composition || "N/A"}`,
+      `Machine Setup: ${recipe.machine_dia[0]}" × ${recipe.gauge}G (or ${recipe.machine_dia[1]}" × ${recipe.gauge}G)`,
+      `Yarn Count: ${recipe.yarn_count}s Ne${recipe.yarn_spec ? ` (${recipe.yarn_spec})` : ""}`,
       `Stitch Length: ${recipe.stitch_length}`,
-      lycra ? `Lycra Denier: ${recipe.lycra_denier} D` : `Elastic: None (Rigid)`,
+      lycra && recipe.lycra_denier ? `Lycra: ${recipe.lycra_denier}D` : `Lycra: None`,
     ].join("\n");
 
     navigator.clipboard.writeText(text);
@@ -129,7 +131,7 @@ export default function HomePage() {
       <BlackHoleCanvas />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Sleek Top Navigation Bar */}
+        {/* Navigation */}
         <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#06010f]/85 border-b border-purple-500/30 shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
             <MovingLogo />
@@ -139,15 +141,12 @@ export default function HomePage() {
         {/* Main Workspace */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Column: Specifications Form (7 cols) */}
+            {/* Left Column: Form (7 cols) */}
             <div className="lg:col-span-7 glossy-panel rounded-2xl p-6 sm:p-8">
               <div className="border-b border-purple-500/25 pb-4 mb-6">
                 <h1 className="text-xl font-extrabold text-white tracking-tight">
-                  Fabric Order Specifications
+                  Fabric Specifications
                 </h1>
-                <p className="text-xs text-slate-300 mt-1">
-                  Specify fabric parameters to predict machine diameter, gauge, and yarn count.
-                </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -156,7 +155,7 @@ export default function HomePage() {
                   {/* Knit Structure */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-2">
-                      Knit Structure <span className="text-fuchsia-400">*</span>
+                      Knit Structure
                     </label>
                     <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-[#0a0217] border border-purple-500/40">
                       <button
@@ -188,7 +187,7 @@ export default function HomePage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                        Target GSM <span className="text-fuchsia-400">*</span>
+                        Target GSM
                       </label>
                       <span className="text-[11px] font-mono text-slate-300">60 - 600</span>
                     </div>
@@ -203,7 +202,7 @@ export default function HomePage() {
                       className="w-full px-4 py-2.5 glossy-input text-sm font-bold text-white placeholder-slate-400"
                     />
 
-                    {/* Quick Preset Buttons */}
+                    {/* Presets */}
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       {[140, 160, 180, 200, 240, 280].map((val) => (
                         <button
@@ -264,14 +263,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Lycra / Elastane Toggle */}
+                {/* Lycra Toggle */}
                 <div className="p-4 rounded-xl bg-[#110526]/90 border border-purple-500/40 flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-bold text-white block">Contains Lycra / Elastane</span>
-                    <span className="text-xs text-slate-300">
-                      Include Lycra denier in the knitting recipe.
-                    </span>
-                  </div>
+                  <span className="text-sm font-bold text-white">Contains Lycra / Elastane</span>
 
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -284,88 +278,82 @@ export default function HomePage() {
                   </label>
                 </div>
 
-                {/* Optional Order Parameters */}
-                <div className="pt-2 border-t border-purple-500/25">
-                  <div className="text-xs font-bold uppercase tracking-wider text-purple-300 mb-3">
-                    Order Details
+                {/* Buyer, Shade, Form & Width */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-purple-500/25">
+                  {/* Buyer */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-200 mb-1.5">
+                      Buyer
+                    </label>
+                    <select
+                      value={buyer}
+                      onChange={(e) => setBuyer(e.target.value)}
+                      className="w-full px-3 py-2 glossy-input text-sm text-white"
+                    >
+                      <option value="">-- Any Buyer --</option>
+                      {options?.buyer?.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* Buyer */}
+                  {/* Shade */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-200 mb-1.5">
+                      Color Shade
+                    </label>
+                    <select
+                      value={shade}
+                      onChange={(e) => setShade(e.target.value as ShadeType)}
+                      className="w-full px-3 py-2 glossy-input text-sm text-white"
+                    >
+                      {options?.shade?.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      )) || (
+                        <>
+                          <option value="Light">Light</option>
+                          <option value="Medium">Medium</option>
+                          <option value="Dark">Dark</option>
+                          <option value="Melange">Melange</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* Form & Width */}
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                        Buyer
+                        Form
                       </label>
                       <select
-                        value={buyer}
-                        onChange={(e) => setBuyer(e.target.value)}
-                        className="w-full px-3 py-2 glossy-input text-sm text-white"
+                        value={form}
+                        onChange={(e) => setForm(e.target.value as FormType | "")}
+                        className="w-full px-2 py-2 glossy-input text-sm text-white"
                       >
-                        <option value="">-- Any Buyer --</option>
-                        {options?.buyer?.map((b) => (
-                          <option key={b} value={b}>
-                            {b}
-                          </option>
-                        ))}
+                        <option value="">Any</option>
+                        <option value="Open">Open</option>
+                        <option value="Tube">Tube</option>
                       </select>
                     </div>
 
-                    {/* Color Shade */}
                     <div>
                       <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                        Color Shade
+                        Width (in)
                       </label>
-                      <select
-                        value={shade}
-                        onChange={(e) => setShade(e.target.value as ShadeType)}
-                        className="w-full px-3 py-2 glossy-input text-sm text-white"
-                      >
-                        {options?.shade?.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        )) || (
-                          <>
-                            <option value="Light">Light</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Dark">Dark</option>
-                            <option value="Melange">Melange</option>
-                          </>
-                        )}
-                      </select>
-                    </div>
-
-                    {/* Form & Width */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                          Form
-                        </label>
-                        <select
-                          value={form}
-                          onChange={(e) => setForm(e.target.value as FormType | "")}
-                          className="w-full px-2 py-2 glossy-input text-sm text-white"
-                        >
-                          <option value="">Any</option>
-                          <option value="Open">Open</option>
-                          <option value="Tube">Tube</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-200 mb-1.5">
-                          Width (in)
-                        </label>
-                        <input
-                          type="number"
-                          min={10}
-                          max={120}
-                          value={fabWidth}
-                          onChange={(e) => setFabWidth(e.target.value === "" ? "" : Number(e.target.value))}
-                          placeholder="70"
-                          className="w-full px-2 py-2 glossy-input text-sm text-white font-medium"
-                        />
-                      </div>
+                      <input
+                        type="number"
+                        min={10}
+                        max={120}
+                        value={fabWidth}
+                        onChange={(e) => setFabWidth(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder="Width"
+                        className="w-full px-2.5 py-2 glossy-input text-sm text-white font-medium"
+                      />
                     </div>
                   </div>
                 </div>
@@ -383,7 +371,7 @@ export default function HomePage() {
                     disabled={calculating}
                     className="flex-1 py-3.5 px-6 rounded-xl glossy-btn-primary text-white font-bold text-sm tracking-wide disabled:opacity-50 transition"
                   >
-                    {calculating ? "Calculating Setup..." : "Calculate Knitting Recipe"}
+                    {calculating ? "Calculating..." : "Calculate Recipe"}
                   </button>
 
                   <button
@@ -397,14 +385,11 @@ export default function HomePage() {
               </form>
             </div>
 
-            {/* Right Column: Setup Results (5 cols) */}
+            {/* Right Column: Results (5 cols) */}
             <div className="lg:col-span-5 space-y-6">
               <div className="glossy-panel rounded-2xl p-6 sm:p-8">
                 <div className="border-b border-purple-500/25 pb-4 mb-6 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-white">Knitting Recipe</h2>
-                    <p className="text-xs text-slate-300 mt-0.5">Machine and yarn output</p>
-                  </div>
+                  <h2 className="text-xl font-extrabold text-white">Knitting Recipe</h2>
 
                   {recipe && (
                     <button
@@ -420,7 +405,7 @@ export default function HomePage() {
                   <div className="space-y-4 opacity-40 select-none">
                     <div className="p-5 rounded-xl bg-[#110526]/50 border border-purple-500/20">
                       <span className="text-xs font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
-                        Machine Dia × Gauge (AxB)
+                        Machine Setup
                       </span>
                       <div className="flex items-baseline space-x-3 my-1">
                         <span className="text-5xl font-black text-slate-700">--&quot; × --G</span>
@@ -429,7 +414,7 @@ export default function HomePage() {
 
                     <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
-                        Yarn Count (Output)
+                        Yarn Count
                       </span>
                       <div className="text-3xl font-black text-slate-700">--s Ne</div>
                     </div>
@@ -452,16 +437,11 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {/* Machine Dia x Gauge Hero Card (AxB Format) */}
+                    {/* Machine Setup */}
                     <div className="p-5 rounded-xl bg-gradient-to-br from-[#1d0638] to-[#0a0217] border border-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.3)]">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-extrabold uppercase tracking-wider text-purple-300">
-                          Machine Dia × Gauge (AxB)
-                        </span>
-                        <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-purple-900/80 border border-purple-400/50 text-fuchsia-300 font-bold">
-                          Excel: {recipe.machine_setup?.[0] || `${recipe.machine_dia[0]}X${recipe.gauge}`}
-                        </span>
-                      </div>
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-purple-300 block mb-1">
+                        Machine Setup
+                      </span>
 
                       <div className="flex items-baseline space-x-3 my-2">
                         <span className="text-4xl sm:text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
@@ -472,33 +452,27 @@ export default function HomePage() {
                           {recipe.machine_dia[1]}&quot; × {recipe.gauge}G
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 mt-1">
-                        Factory machine floor allocation: {recipe.machine_dia[0]}&quot; cylinder (primary) or {recipe.machine_dia[1]}&quot; cylinder (secondary).
-                      </p>
                     </div>
 
-                    {/* Yarn Count Output Hero Card */}
+                    {/* Yarn Count */}
                     <div className="p-5 rounded-xl bg-gradient-to-br from-[#16042e] to-[#0c021a] border border-purple-500/50 shadow-[0_0_20px_rgba(147,51,234,0.25)]">
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-xs font-extrabold uppercase tracking-wider text-purple-300">
-                          Yarn Count (Output)
-                        </span>
-                        <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-purple-900/80 text-purple-200 border border-purple-400/40 font-bold">
-                          {recipe.yarn_count}s / 1 Ne
-                        </span>
-                      </div>
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-purple-300 block mb-1">
+                        Yarn Count
+                      </span>
 
                       <div className="text-3xl sm:text-4xl font-black text-white flex items-baseline space-x-2 my-1">
                         <span>{recipe.yarn_count}s</span>
                         <span className="text-sm font-semibold text-purple-300">Ne</span>
                       </div>
 
-                      <div className="text-sm font-semibold text-purple-200 mt-2">
-                        {recipe.yarn_spec || `${recipe.yarn_count}s/1 ${composition || "Cotton"}${lycra && recipe.lycra_denier ? ` + ${recipe.lycra_denier}D Lycra` : ""}`}
-                      </div>
+                      {recipe.yarn_spec && (
+                        <div className="text-sm font-semibold text-purple-200 mt-2">
+                          {recipe.yarn_spec}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Stitch Length and Lycra Specs Grid */}
+                    {/* Stitch Length and Lycra Specs */}
                     <div className="grid grid-cols-2 gap-3">
                       {/* Stitch Length */}
                       <div className="p-4 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
@@ -522,13 +496,13 @@ export default function HomePage() {
                               <span className="text-xs font-semibold text-fuchsia-400">D</span>
                             </div>
                           ) : (
-                            <span className="text-xs font-medium text-slate-400">None (Rigid)</span>
+                            <span className="text-xs font-medium text-slate-400">None</span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Order Context Summary */}
+                    {/* Summary Badges */}
                     <div className="pt-3 text-xs text-slate-300 border-t border-purple-500/25 flex flex-wrap gap-1.5">
                       <span className="px-2.5 py-1 rounded bg-purple-950/80 border border-purple-500/40 font-semibold text-white">
                         {knit}

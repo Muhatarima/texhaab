@@ -13,10 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "texHAAB | AI Knitting Recipe Intelligence",
-  description: "AI-driven circular knitting machine setup recommender for knit-fabric manufacturing",
+  title: "texHAAB | Knitting Recipe Intelligence",
+  description: "Circular knitting machine setup and yarn specification platform",
 };
-
 
 export default function RootLayout({
   children,
