@@ -26,6 +26,7 @@ export async function getApiBase(): Promise<string> {
   const defaultList = [
     custom,
     process.env.NEXT_PUBLIC_API_URL,
+    "https://texhaab.onrender.com",
     "http://127.0.0.1:8080",
     "http://localhost:8080",
     "http://127.0.0.1:8000",

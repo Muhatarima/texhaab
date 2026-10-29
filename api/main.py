@@ -1,27 +1,20 @@
 import os
+import traceback
+import logging
 from typing import Literal, Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from api.predict import get_recipe, get_options
 
 app = FastAPI(title="texHAAB")
 
-# Configure CORS: Allow local Next.js dev and any production URLs set via ALLOWED_ORIGINS
-default_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3100",
-    "http://127.0.0.1:3100",
-]
-env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
-allowed_origins = list(set(default_origins + env_origins))
-
+# Wide-open CORS for public inference
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_origin_regex=r".*",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,11 +41,24 @@ def home():
     return {"message": "texHAAB is running"}
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 @app.get("/options")
 def options():
-    return get_options()
+    try:
+        return get_options()
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to load options: {str(e)}")
 
 
 @app.post("/recipe")
 def recipe(request: RecipeRequest):
-    return get_recipe(request.model_dump())
+    try:
+        return get_recipe(request.model_dump())
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=f"Inference error: {str(e)}")

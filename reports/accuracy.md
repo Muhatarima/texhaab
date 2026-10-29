@@ -1,4 +1,4 @@
-# texHAAB accuracy report (2026-10-20)
+# texHAAB accuracy report (2026-10-29)
 
 Test set: 8849 unique requests, Jul-Dec 2023.
 
