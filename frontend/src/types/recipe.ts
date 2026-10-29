@@ -14,9 +14,15 @@ export interface RecipeOptions {
 export interface RecipeRequest {
   knit: KnitType;
   gsm: number;
+  fabrication?: string;
+  fab_dia?: string;
   fabric_type?: string;
   composition?: string;
   lycra: boolean;
+  cotton_pct?: number;
+  poly_pct?: number;
+  elastane_pct?: number;
+  viscose_pct?: number;
   form?: FormType;
   fab_width?: number;
   buyer?: string;
@@ -30,4 +36,7 @@ export interface RecipeResponse {
   yarn_count: number;
   lycra_denier: number | null;
   stitch_length: number;
+  machine_setup?: [string, string];
+  machine_setup_display?: string;
+  yarn_spec?: string;
 }

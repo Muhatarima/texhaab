@@ -26,6 +26,8 @@ class RecipeRequest(BaseModel):
     knit: Literal["Single", "Double"]
     gsm: float = Field(ge=60, le=600)
     # Optional: more details give a more accurate recipe
+    fabrication: Optional[str] = None
+    fab_dia: Optional[str] = None
     fabric_type: Optional[str] = None
     composition: Optional[str] = None
     lycra: bool = False

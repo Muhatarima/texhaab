@@ -80,7 +80,7 @@ FABRIC_TYPES = [
 
 DOUBLE_KNITS = ["Rib", "1x1 Rib", "2x2 Rib", "2x1 Rib", "4x2 Rib", "Interlock", "Pointelle", "Waffle", "Pique Interlock"]
 
-FIBER_PCT_PATTERN = re.compile(r"(\d{1,3})\s*%\s*([A-Z\s/-]+?)(?=(?:\d{1,3}\s*%)|$)")
+FIBER_PCT_PATTERN = re.compile(r"(\d{1,3})\s*%\s*([^%\d]+?)(?=(?:\d{1,3}\s*%)|$)")
 LYCRA_INDICATORS = re.compile(r"\bL[\s-]|(?:\bL\b)|LYCRA|ELASTANE|SPANDEX")
 
 

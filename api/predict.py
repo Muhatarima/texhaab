@@ -4,7 +4,13 @@ import joblib
 import numpy as np
 import pandas as pd
 from ml.features import prepare, FEATURES
-from pipeline.parsers import parse_fiber_percentages
+from pipeline.parsers import (
+    parse_fiber_percentages,
+    parse_fabric_type,
+    parse_composition,
+    has_lycra,
+    parse_fabric_dia,
+)
 
 MODEL_DIR = Path("ml/models")
 
@@ -54,29 +60,62 @@ def get_recipe(req):
     models = get_models()
     categories = get_categories()
 
-    # Determine fiber percentages
+    # 1. Parse raw Fabrication text if provided (e.g. from Excel paste)
+    fabrication = req.get("fabrication")
+    fabric_type = req.get("fabric_type")
+    knit = req.get("knit")
+    composition = req.get("composition")
+    lycra = bool(req.get("lycra", False))
+
+    if fabrication:
+        p_type, p_knit = parse_fabric_type(fabrication)
+        if not fabric_type and p_type:
+            fabric_type = p_type
+        if not knit and p_knit:
+            knit = p_knit
+        if not composition:
+            composition = parse_composition(fabrication)
+        if not lycra:
+            lycra = has_lycra(fabrication)
+
+    # 2. Parse raw Fab Dia text if provided (e.g. '70/ inch Open')
+    form = req.get("form")
+    fab_width = req.get("fab_width")
+    fab_dia_text = req.get("fab_dia")
+    if fab_dia_text:
+        p_form, p_width = parse_fabric_dia(fab_dia_text)
+        if not form and p_form:
+            form = p_form
+        if not fab_width and p_width:
+            fab_width = p_width
+
+    # 3. Determine fiber percentages
     cotton_pct = req.get("cotton_pct")
     poly_pct = req.get("poly_pct")
     elastane_pct = req.get("elastane_pct")
     viscose_pct = req.get("viscose_pct")
 
-    # If fiber percentages are omitted, extract them from composition/fabric_type
+    # If fiber percentages are omitted, extract them from fabrication or composition
     if cotton_pct is None and poly_pct is None and elastane_pct is None and viscose_pct is None:
-        text = f"{req.get('fabric_type') or ''} {req.get('composition') or ''}"
-        if req.get("lycra"):
+        text = fabrication or f"{fabric_type or ''} {composition or ''}"
+        if lycra and "LYCRA" not in text.upper() and "ELASTANE" not in text.upper():
             text += " LYCRA"
         c, p, e, v = parse_fiber_percentages(text)
         cotton_pct, poly_pct, elastane_pct, viscose_pct = c, p, e, v
 
-    # 1. One-row table with the same columns the models were trained on
+    # Fallback default knit if still not determined
+    if not knit:
+        knit = "Double" if (fabric_type and "Rib" in fabric_type) else "Single"
+
+    # 4. One-row table with the same columns the models were trained on
     row = pd.DataFrame([{
-        "fabric_type": req.get("fabric_type"),
-        "knit": req["knit"],
-        "composition": req.get("composition"),
-        "lycra": bool(req.get("lycra", False)),
+        "fabric_type": fabric_type,
+        "knit": knit,
+        "composition": composition,
+        "lycra": lycra,
         "gsm": req["gsm"],
-        "form": req.get("form"),
-        "fab_width": req.get("fab_width"),
+        "form": form,
+        "fab_width": fab_width,
         "Buyer": (req.get("buyer") or "").strip().upper() or None,
         "shade": req.get("shade", "Medium"),
         "yarn_type": req.get("yarn_type"),
@@ -87,11 +126,11 @@ def get_recipe(req):
     }])
     X = prepare(row, categories=categories)
 
-    # 2. Gauge and Yarn Count
+    # 5. Gauge and Yarn Count
     gauge = int(models["gauge"].predict(X)[0])
     yarn_count = int(models["yarn_count"].predict(X)[0])
 
-    # 3. Machine dia: chained with predicted gauge (top 2 suggestions, best first)
+    # 6. Machine dia: chained with predicted gauge (top 2 suggestions, best first)
     row_dia = row.copy()
     row_dia["gauge"] = gauge
     DIA_FEATURES = FEATURES + ["gauge"]
@@ -100,18 +139,38 @@ def get_recipe(req):
     best_two = models["mc_dia"].classes_[np.argsort(proba)[::-1][:2]]
     machine_dia = [int(d) for d in best_two]
 
-    # 4. Stitch length: chained with predicted gauge and yarn count
+    # 7. Stitch length: chained with predicted gauge and yarn count
     row_sl = row.copy()
     row_sl["gauge"], row_sl["yarn_count"] = gauge, yarn_count
     X_sl = prepare(row_sl, categories=categories, features=FEATURES + ["gauge", "yarn_count"])
     stitch_length = round(float(models["stitch_length"].predict(X_sl)[0]) * 2) / 2
 
-    # 5. Lycra denier, only for lycra fabrics
+    # 8. Lycra denier, only for lycra fabrics
     lycra_denier = None
     if row["lycra"][0]:
         X_ly = prepare(row, categories=categories,
                        features=[f for f in FEATURES if f != "lycra"])
         lycra_denier = int(models["lycra_denier"].predict(X_ly)[0])
+
+    # 9. Format industrial outputs (Excel AxB notation & complete yarn specification)
+    machine_setup = [f"{d}X{gauge}" for d in machine_dia]
+    machine_setup_display = f"{machine_dia[0]}\" × {gauge}G (Alt: {machine_dia[1]}\" × {gauge}G)"
+
+    spinning = req.get("yarn_type") or "Combed Compact"
+    parts = []
+    if cotton_pct and cotton_pct > 0:
+        parts.append(f"{int(cotton_pct)}% Cotton")
+    if poly_pct and poly_pct > 0:
+        parts.append(f"{int(poly_pct)}% Poly")
+    if viscose_pct and viscose_pct > 0:
+        parts.append(f"{int(viscose_pct)}% Viscose")
+    if elastane_pct and elastane_pct > 0:
+        parts.append(f"{int(elastane_pct)}% Elastane")
+    comp_desc = " / ".join(parts) if parts else (composition or "100% Cotton")
+
+    yarn_spec = f"{yarn_count}s/1 {spinning} {comp_desc}"
+    if lycra_denier:
+        yarn_spec += f" + {lycra_denier}D Lycra"
 
     return {
         "machine_dia": machine_dia,
@@ -119,4 +178,7 @@ def get_recipe(req):
         "yarn_count": yarn_count,
         "lycra_denier": lycra_denier,
         "stitch_length": stitch_length,
+        "machine_setup": machine_setup,
+        "machine_setup_display": machine_setup_display,
+        "yarn_spec": yarn_spec,
     }
