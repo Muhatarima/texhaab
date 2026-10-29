@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import {
   fetchOptions,
   fetchRecipe,
-  getApiBase,
-  getCustomBackendUrl,
-  setCustomBackendUrl,
 } from "../lib/api";
 import {
   KnitType,
@@ -21,13 +18,7 @@ import MovingLogo from "../components/MovingLogo";
 
 export default function HomePage() {
   const [options, setOptions] = useState<RecipeOptions | null>(null);
-  const [loadingOptions, setLoadingOptions] = useState<boolean>(true);
-  const [backendError, setBackendError] = useState<string | null>(null);
-  const [activeUrl, setActiveUrl] = useState<string>("");
-
-  // URL Config Modal
-  const [showConfig, setShowConfig] = useState<boolean>(false);
-  const [customInput, setCustomInput] = useState<string>("");
+  const [, setLoadingOptions] = useState<boolean>(true);
 
   // Form State
   const [knit, setKnit] = useState<KnitType>("Single");
@@ -54,29 +45,15 @@ export default function HomePage() {
   async function loadOptions() {
     try {
       setLoadingOptions(true);
-      setBackendError(null);
-      const url = await getApiBase();
-      setActiveUrl(url);
-      setCustomInput(getCustomBackendUrl() || url);
       const data = await fetchOptions();
       setOptions(data);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Service unavailable";
-      setBackendError(msg);
+    } catch {
+      // Options will fallback gracefully
     } finally {
       setLoadingOptions(false);
     }
   }
 
-  function handleSaveCustomUrl() {
-    if (customInput.trim()) {
-      setCustomBackendUrl(customInput.trim());
-    } else {
-      setCustomBackendUrl(null);
-    }
-    setShowConfig(false);
-    loadOptions();
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -156,102 +133,9 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
             {/* Logo: Moving/Circulating 'tex' + Fixed 'HAAB' */}
             <MovingLogo />
-
-            {/* Clean System Status & Backend Switcher */}
-            <div className="flex items-center space-x-2 text-xs">
-              {loadingOptions ? (
-                <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-200">
-                  <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                  <span className="font-semibold text-xs">Connecting...</span>
-                </div>
-              ) : backendError ? (
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setShowConfig(true)}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full bg-rose-950/80 border border-rose-500/50 text-rose-200 font-semibold text-xs hover:bg-rose-900 transition"
-                  >
-                    <span className="w-2 h-2 mr-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
-                    Backend Offline · Configure
-                  </button>
-                  <button
-                    onClick={loadOptions}
-                    className="px-3 py-1 text-xs bg-purple-900/80 hover:bg-purple-800 border border-purple-400/50 rounded-full text-white font-semibold transition"
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowConfig(true)}
-                  className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#110526]/90 border border-emerald-500/50 text-emerald-300 font-semibold text-xs shadow-[0_0_12px_rgba(16,185,129,0.2)] hover:border-purple-400 transition"
-                  title="Click to view or change backend URL"
-                >
-                  <span className="w-2 h-2 mr-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
-                  <span>Backend Connected</span>
-                  <span className="ml-2 text-[10px] text-purple-300 bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/30 font-mono">
-                    {activeUrl.replace("http://", "").replace("https://", "").split("/")[0]}
-                  </span>
-                </button>
-              )}
-            </div>
           </div>
         </header>
 
-        {/* Backend Connection Modal */}
-        {showConfig && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <div className="w-full max-w-md glossy-panel rounded-2xl p-6 space-y-4 border border-purple-400/60 shadow-[0_0_50px_rgba(168,85,247,0.3)]">
-              <div className="flex justify-between items-center border-b border-purple-500/30 pb-3">
-                <h3 className="text-base font-bold text-white">Backend Connection Settings</h3>
-                <button
-                  onClick={() => setShowConfig(false)}
-                  className="text-slate-400 hover:text-white text-lg font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-200">
-                  Backend API URL (Render or Local)
-                </label>
-                <input
-                  type="text"
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  placeholder="https://texhaab-xxxx.onrender.com"
-                  className="w-full px-3 py-2 glossy-input text-xs font-mono text-white placeholder-slate-500"
-                />
-                <p className="text-[11px] text-slate-400">
-                  Paste your live Render URL here to connect the UI to your cloud backend, or use{" "}
-                  <code className="text-purple-300">http://127.0.0.1:8080</code> for local.
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2 pt-2">
-                <button
-                  type="button"
-                  onClick={handleSaveCustomUrl}
-                  className="flex-1 py-2 rounded-xl glossy-btn-primary text-white font-bold text-xs"
-                >
-                  Save & Connect
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomBackendUrl(null);
-                    setCustomInput("http://127.0.0.1:8080");
-                    setShowConfig(false);
-                    loadOptions();
-                  }}
-                  className="py-2 px-3 rounded-xl bg-purple-950/70 border border-purple-500/40 text-slate-300 hover:text-white text-xs font-semibold"
-                >
-                  Reset Local
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Main Workspace */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
@@ -553,16 +437,50 @@ export default function HomePage() {
                 </div>
 
                 {!recipe ? (
-                  <div className="py-16 px-4 text-center">
-                    <div className="w-12 h-12 mx-auto rounded-xl bg-purple-950/80 border border-purple-500/40 flex items-center justify-center text-xl font-bold text-purple-300 mb-3">
-                      ⚙
+                  <div className="space-y-4 opacity-40 select-none">
+                    <div className="p-5 rounded-xl bg-[#110526]/50 border border-purple-500/20">
+                      <span className="text-xs font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                        Machine Diameter (Top 2 Options)
+                      </span>
+                      <div className="flex items-baseline space-x-3 my-1">
+                        <span className="text-5xl font-black text-slate-700">--&quot;</span>
+                        <span className="text-xl font-bold text-slate-700">or</span>
+                        <span className="text-4xl font-extrabold text-slate-700">--&quot;</span>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-bold text-white">Ready for Specification</h3>
-                    <p className="text-xs text-slate-300 mt-1 max-w-xs mx-auto">
-                      Enter order specifications and click Calculate Knitting Recipe to display machine setup.
-                    </p>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                          Machine Gauge
+                        </span>
+                        <div className="text-2xl font-black text-slate-700">--</div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                          Yarn Count
+                        </span>
+                        <div className="text-2xl font-black text-slate-700">--</div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                          Stitch Length
+                        </span>
+                        <div className="text-2xl font-black text-slate-700">--</div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                          Lycra Denier
+                        </span>
+                        <div className="text-2xl font-black text-slate-700">--</div>
+                      </div>
+                    </div>
                   </div>
                 ) : (
+
                   <div className="space-y-4">
                     {/* Top 2 Machine Dia Hero Card */}
                     <div className="p-5 rounded-xl bg-gradient-to-br from-[#1d0638] to-[#0a0217] border border-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.3)]">
@@ -657,20 +575,9 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-
-              {/* Technical Operating Guidelines */}
-              <div className="glossy-panel rounded-2xl p-5 text-xs text-slate-300 space-y-2">
-                <div className="font-bold text-white flex items-center space-x-1.5">
-                  <span>Factory Machine Guidelines</span>
-                </div>
-                <ul className="list-disc list-inside space-y-1 text-slate-300">
-                  <li>Machine diameter shows top 2 recommendations to maximize floor utilization.</li>
-                  <li>Single/Double knit and GSM are required baseline parameters.</li>
-                  <li>Inference models optimize for target shrinkage and fabric stability.</li>
-                </ul>
-              </div>
             </div>
           </div>
+
         </main>
 
         {/* Minimal Footer */}
