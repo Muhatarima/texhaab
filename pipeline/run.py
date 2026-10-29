@@ -1,7 +1,7 @@
 import pandas as pd
 from parsers import (parse_machine, parse_stitch_length, parse_fabric_dia,
                      parse_fabric_type, parse_composition, has_lycra, parse_yarn,
-                     parse_gsm, parse_shade, parse_yarn_type)
+                     parse_gsm, parse_shade, parse_yarn_type, parse_fiber_percentages)
 
 RAW = "data/raw/Knit_parameters.xlsx"
 OUT = "data/processed/knit_clean.parquet"
@@ -38,6 +38,13 @@ data["lycra_denier"] = [y[2] for y in yarn]
 
 data["composition"] = data["Fabrication"].apply(parse_composition)
 data["lycra"] = data["Fabrication"].apply(has_lycra)
+
+fibers = [parse_fiber_percentages(t) for t in data["Fabrication"]]
+data["cotton_pct"] = [f[0] for f in fibers]
+data["poly_pct"] = [f[1] for f in fibers]
+data["elastane_pct"] = [f[2] for f in fibers]
+data["viscose_pct"] = [f[3] for f in fibers]
+
 data["stitch_length"] = data["St Length"].apply(parse_stitch_length)
 data["gsm"] = data["GSM"].apply(parse_gsm)
 data["shade"] = data["Fab Color"].apply(parse_shade)

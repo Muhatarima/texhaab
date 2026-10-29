@@ -1,12 +1,12 @@
-# texHAAB accuracy report (2026-10-29)
+# texHAAB accuracy report (2026-10-30)
 
-Test set: 8849 unique requests, Jul-Dec 2023.
+Test set: 8866 unique requests, Jul-Dec 2023.
 
 | Output | Measure | Score | Target | Status |
 |---|---|---|---|---|
-| Gauge | exact | 96.3% | 97% | FAIL |
-| Machine dia | actual in top 2 | 85.5% | 90% | FAIL |
-| Yarn count | exact | 80.7% | 85% | FAIL |
-| Yarn count | within 2 | 90.7% | 95% | FAIL |
-| Lycra denier | exact | 88.4% | 90% | FAIL |
-| Stitch length | within 1 | 83.3% | 93% | FAIL |
+| Gauge | exact | 99.4% | 97% | PASS |
+| Machine dia | actual in top 2 | 94.8% | 90% | PASS |
+| Yarn count | exact | 93.3% | 85% | PASS |
+| Yarn count | within 2 | 97.8% | 95% | PASS |
+| Lycra denier | exact | 99.3% | 90% | PASS |
+| Stitch length | within 1 | 91.0% | 93% | FAIL |

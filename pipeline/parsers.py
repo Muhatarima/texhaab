@@ -72,24 +72,73 @@ FABRIC_TYPES = [
     ("INTERLOCK", "Interlock"),
     ("WAFFLE", "Waffle"),
     ("POINT", "Pointelle"),
-    ("RIB", "Rib"),
     ("SLUB", "Slub S/J"),
     ("S/J", "Single Jersey"),
     ("SINGLE JERSEY", "Single Jersey"),
     ("JERSEY", "Single Jersey"),
 ]
 
-DOUBLE_KNITS = ["Rib", "Interlock", "Pointelle", "Waffle", "Pique Interlock"]
+DOUBLE_KNITS = ["Rib", "1x1 Rib", "2x2 Rib", "2x1 Rib", "4x2 Rib", "Interlock", "Pointelle", "Waffle", "Pique Interlock"]
+
+FIBER_PCT_PATTERN = re.compile(r"(\d{1,3})\s*%\s*([A-Z\s/-]+?)(?=(?:\d{1,3}\s*%)|$)")
+LYCRA_INDICATORS = re.compile(r"\bL[\s-]|(?:\bL\b)|LYCRA|ELASTANE|SPANDEX")
 
 
 def parse_fabric_type(text):
-    """Turn '1X1 L RIB 95% COTTON...' into ('Rib', 'Double')."""
+    """Turn '1X1 L RIB 95% COTTON...' into ('1x1 Rib', 'Double')."""
     text = str(text).upper()
+    if "RIB" in text:
+        m = re.search(r"(\d+X\d+)", text)
+        if m:
+            r = m.group(1)
+            if r == "1X1": return "1x1 Rib", "Double"
+            if r == "2X2": return "2x2 Rib", "Double"
+            if r == "2X1": return "2x1 Rib", "Double"
+            if r == "4X2": return "4x2 Rib", "Double"
+        return "Rib", "Double"
     for keyword, name in FABRIC_TYPES:
         if keyword in text:
             knit = "Double" if name in DOUBLE_KNITS else "Single"
             return name, knit
     return None, None
+
+
+def parse_fiber_percentages(text):
+    """Extract exact fiber percentages (cotton, poly, elastane, viscose) from fabrication string."""
+    text = str(text).upper()
+    cotton = 0.0
+    poly = 0.0
+    elastane = 0.0
+    viscose = 0.0
+
+    matches = FIBER_PCT_PATTERN.findall(text)
+    if matches:
+        for pct_str, desc in matches:
+            pct = float(pct_str)
+            if any(k in desc for k in ["ELASTANE", "SPANDEX", "LYCRA"]):
+                elastane += pct
+            elif any(k in desc for k in ["POLY", "PES"]):
+                poly += pct
+            elif any(k in desc for k in ["VISCOSE", "MODAL", "TENCEL"]):
+                viscose += pct
+            elif "COTTON" in desc:
+                cotton += pct
+    else:
+        if LYCRA_INDICATORS.search(text):
+            elastane = 5.0
+        if "POLY" in text:
+            poly = 100.0 - elastane
+        elif any(k in text for k in ["VISCOSE", "MODAL", "TENCEL"]):
+            viscose = 100.0 - elastane
+        elif "COTTON" in text:
+            cotton = 100.0 - elastane
+
+    if elastane == 0.0 and LYCRA_INDICATORS.search(text):
+        elastane = 5.0
+        if cotton >= 5.0:
+            cotton -= 5.0
+
+    return min(100.0, cotton), min(100.0, poly), min(100.0, elastane), min(100.0, viscose)
 
 
 def parse_composition(text):

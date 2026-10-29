@@ -22,8 +22,11 @@ results = []   # (output, measure, score, target)
 gauge = models["gauge"].predict(X)
 results.append(("Gauge", "exact", (gauge == test["gauge"]).mean(), 0.97))
 
-# Machine dia: actual in top 2
-proba = models["mc_dia"].predict_proba(X)
+# Machine dia: actual in top 2 (chained with predicted gauge)
+chain_dia = test.copy()
+chain_dia["gauge"] = gauge
+DIA_FEATURES = FEATURES + ["gauge"]
+proba = models["mc_dia"].predict_proba(prepare(chain_dia, features=DIA_FEATURES, categories=cats))
 top2 = models["mc_dia"].classes_[np.argsort(proba, axis=1)[:, -2:]]
 in_top2 = np.mean([a in g for a, g in zip(test["mc_dia"], top2)])
 results.append(("Machine dia", "actual in top 2", in_top2, 0.90))

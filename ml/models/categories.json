@@ -1,5 +1,9 @@
 {
   "fabric_type": [
+    "1x1 Rib",
+    "2x1 Rib",
+    "2x2 Rib",
+    "4x2 Rib",
     "Fleece",
     "French Terry",
     "Interlock",
@@ -40,6 +44,7 @@
     "COTTON ON",
     "DBL GROUP (DBL)",
     "DBL-CERAMIC",
+    "DEBONAIR-F-ALL",
     "DICKIES",
     "DIESEL",
     "EPIC GROUP-F-WALMART USA",
@@ -52,6 +57,7 @@
     "IDENTY",
     "INDISKA",
     "INTIMATE-F-BONPRIX",
+    "KDS-F-ESPRIT",
     "KMART",
     "LEVIS",
     "LOUANNE",
@@ -64,6 +70,7 @@
     "NORP KNIT-F-KOHL",
     "OCHNIK",
     "PUMA",
+    "PUMA ARGENTINA-F-ALL",
     "PVH",
     "RALPH LAUREN",
     "SATURN-F-PVH",

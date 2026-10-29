@@ -1,6 +1,6 @@
 from pipeline.parsers import (parse_machine, parse_stitch_length, parse_fabric_dia,
                               parse_fabric_type, parse_composition, has_lycra,
-                              parse_yarn, parse_gsm)
+                              parse_yarn, parse_gsm, parse_fiber_percentages)
 
 
 # Machine dia x gauge
@@ -44,7 +44,11 @@ def test_fabric_dia_cm_with_inch():
 
 # Fabric type
 def test_fabric_type_rib():
-    assert parse_fabric_type("1X1 L RIB 95% COTTON 5% ELASTANE") == ("Rib", "Double")
+    assert parse_fabric_type("1X1 L RIB 95% COTTON 5% ELASTANE") == ("1x1 Rib", "Double")
+    assert parse_fabric_type("2X2 L RIB 95% COTTON 5% ELASTANE") == ("2x2 Rib", "Double")
+    assert parse_fabric_type("2X1 RIB 100% COTTON") == ("2x1 Rib", "Double")
+    assert parse_fabric_type("4X2 RIB 60% COTTON") == ("4x2 Rib", "Double")
+    assert parse_fabric_type("RIB 100% COTTON") == ("Rib", "Double")
 
 def test_fabric_type_pique_interlock():
     assert parse_fabric_type("PIQUE INTERLOCK 100% COTTON") == ("Pique Interlock", "Double")
@@ -81,3 +85,18 @@ def test_gsm_plain():
 
 def test_gsm_range():
     assert parse_gsm("220-230") == 225.0
+
+
+# Fiber percentages
+def test_fiber_percentages_blends():
+    c, p, e, v = parse_fiber_percentages("60% COTTON 20% RECYCLED COTTON 20% POLYESTER")
+    assert (c, p, e, v) == (80.0, 20.0, 0.0, 0.0)
+
+    c, p, e, v = parse_fiber_percentages("L S/J 95% COTTON 5% ELASTANE")
+    assert (c, p, e, v) == (95.0, 0.0, 5.0, 0.0)
+
+    c, p, e, v = parse_fiber_percentages("100% VISCOSE")
+    assert (c, p, e, v) == (0.0, 0.0, 0.0, 100.0)
+
+    c, p, e, v = parse_fiber_percentages("PIQUE 65% POLY 35% COTTON")
+    assert (c, p, e, v) == (35.0, 65.0, 0.0, 0.0)

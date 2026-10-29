@@ -29,6 +29,10 @@ class RecipeRequest(BaseModel):
     fabric_type: Optional[str] = None
     composition: Optional[str] = None
     lycra: bool = False
+    cotton_pct: Optional[float] = None
+    poly_pct: Optional[float] = None
+    elastane_pct: Optional[float] = None
+    viscose_pct: Optional[float] = None
     form: Optional[Literal["Open", "Tube"]] = None
     fab_width: Optional[float] = None
     buyer: Optional[str] = None
