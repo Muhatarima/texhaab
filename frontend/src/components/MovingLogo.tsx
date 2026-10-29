@@ -5,119 +5,96 @@ import React from "react";
 export default function MovingLogo() {
   return (
     <div className="flex items-center space-x-3 select-none">
-      {/* Fancy Cosmic Black Hole Emblem (No 'tH' text, pure astrophysics elegance) */}
-      <div className="relative w-12 h-12 flex items-center justify-center">
-        {/* Deep Gravitational Lensing Glow / Ambient Warp */}
-        <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-purple-600/50 via-fuchsia-600/40 to-cyan-400/50 blur-md animate-pulse pointer-events-none" />
+      {/* Sleek, Dark Astrophysical Black Hole Emblem (Clean, Non-Glossy, Authentic Deep Void) */}
+      <div className="relative w-11 h-11 flex items-center justify-center">
+        {/* Subtle, Muted Gravitational Warp Aura (Gentle, Not Overly Glossy) */}
+        <div className="absolute inset-0 rounded-full bg-purple-950/40 border border-purple-500/20 pointer-events-none" />
 
-        {/* Outer Photon Orbit Ring (Dashed, Slow Counter-Clockwise Rotation) */}
-        <div className="absolute inset-0 rounded-full border border-purple-400/30 border-dashed animate-[spin_16s_linear_infinite_reverse] pointer-events-none" />
+        {/* Clean Outer Orbital Ring (Fine Dashed Circle) */}
+        <div className="absolute inset-0 rounded-full border border-purple-400/25 border-dashed animate-[spin_25s_linear_infinite] pointer-events-none" />
 
-        {/* High-Velocity Orbiting Photon Particle 1 (Cyan) */}
-        <div className="absolute inset-0 animate-[spin_4s_linear_infinite] pointer-events-none">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_8px_#38bdf8] -top-0.5 left-1/2 -translate-x-1/2 absolute" />
+        {/* Single Subtle Orbiting Photon Node */}
+        <div className="absolute inset-0 animate-[spin_6s_linear_infinite] pointer-events-none">
+          <div className="w-1 h-1 rounded-full bg-cyan-200/90 shadow-[0_0_4px_#38bdf8] -top-0.5 left-1/2 -translate-x-1/2 absolute" />
         </div>
 
-        {/* High-Velocity Orbiting Photon Particle 2 (Fuchsia) */}
-        <div className="absolute inset-0 animate-[spin_6s_linear_infinite_reverse] pointer-events-none">
-          <div className="w-1 h-1 rounded-full bg-fuchsia-300 shadow-[0_0_8px_#d946ef] bottom-0 left-1/2 -translate-x-1/2 absolute" />
-        </div>
-
-        {/* The Relativistic Black Hole Vector Body */}
-        <div className="relative w-11 h-11 flex items-center justify-center">
+        {/* Vector Black Hole: Sharp, Elegant, Matte Astrophysical Geometry */}
+        <div className="relative w-10 h-10 flex items-center justify-center">
           <svg
             viewBox="0 0 100 100"
-            className="w-full h-full drop-shadow-[0_0_16px_rgba(168,85,247,0.85)]"
+            className="w-full h-full"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* Accretion Gradient: Cyan -> Fuchsia -> Purple -> Bright White */}
-              <linearGradient id="bhAccretion" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="35%" stopColor="#c084fc" />
-                <stop offset="70%" stopColor="#ec4899" />
-                <stop offset="100%" stopColor="#818cf8" />
+              {/* Toned Down, Sophisticated Accretion Gradient */}
+              <linearGradient id="bhAccretionMatte" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#818cf8" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
               </linearGradient>
 
-              {/* Lensed Light Arch Gradient */}
-              <linearGradient id="bhLensing" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-                <stop offset="30%" stopColor="#e879f9" stopOpacity="0.8" />
-                <stop offset="70%" stopColor="#38bdf8" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.1" />
+              {/* Gravitational Lensing Arch Gradient */}
+              <linearGradient id="bhLensingMatte" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#c7d2fe" stopOpacity="0.75" />
+                <stop offset="50%" stopColor="#818cf8" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#4c1d95" stopOpacity="0" />
               </linearGradient>
-
-              {/* Glow Filter */}
-              <filter id="bhGlow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
             </defs>
 
-            {/* Outer Lensed Gravitational Arc (Upper Warp) */}
+            {/* 1. Lensed Gravitational Light Arc (Back Upper) */}
             <path
-              d="M 18 50 C 18 20, 82 20, 82 50"
-              stroke="url(#bhLensing)"
-              strokeWidth="4"
+              d="M 22 50 C 22 26, 78 26, 78 50"
+              stroke="url(#bhLensingMatte)"
+              strokeWidth="2.2"
               strokeLinecap="round"
-              className="opacity-90"
-              filter="url(#bhGlow)"
+              className="opacity-75"
             />
 
-            {/* Outer Lensed Gravitational Arc (Lower Warp) */}
+            {/* 2. Lensed Gravitational Light Arc (Back Lower) */}
             <path
-              d="M 24 50 C 24 76, 76 76, 76 50"
-              stroke="url(#bhLensing)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              className="opacity-60"
-            />
-
-            {/* Relativistic Accretion Disk (Tilted Orbiting Ring) */}
-            <ellipse
-              cx="50"
-              cy="50"
-              rx="42"
-              ry="14"
-              stroke="url(#bhAccretion)"
-              strokeWidth="5"
-              filter="url(#bhGlow)"
-              className="animate-[spin_8s_linear_infinite] origin-center opacity-95"
-              strokeDasharray="180 30"
-            />
-
-            {/* Inner Accretion Filament */}
-            <ellipse
-              cx="50"
-              cy="50"
-              rx="33"
-              ry="10"
-              stroke="#e0e7ff"
+              d="M 26 50 C 26 70, 74 70, 74 50"
+              stroke="url(#bhLensingMatte)"
               strokeWidth="1.5"
-              strokeDasharray="6 8"
-              className="animate-[spin_12s_linear_infinite_reverse] origin-center opacity-75"
+              strokeLinecap="round"
+              className="opacity-45"
             />
 
-            {/* Razor-Sharp Photon Sphere (Boundary of No Return) */}
+            {/* 3. Tilted Accretion Disk (Thin, Clean, Non-Glossy Orbiting Ring) */}
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="40"
+              ry="13"
+              stroke="url(#bhAccretionMatte)"
+              strokeWidth="2"
+              className="animate-[spin_12s_linear_infinite] origin-center opacity-85"
+              strokeDasharray="160 25"
+            />
+
+            {/* 4. Fine Stellar Dust Filament (Dotted Inner Stream) */}
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="32"
+              ry="9"
+              stroke="#a5b4fc"
+              strokeWidth="1"
+              strokeDasharray="4 6"
+              className="animate-[spin_18s_linear_infinite_reverse] origin-center opacity-50"
+            />
+
+            {/* 5. Photon Sphere Rim (Delicate Thin Horizon Boundary) */}
             <circle
               cx="50"
               cy="50"
               r="20"
-              stroke="#ffffff"
-              strokeWidth="2"
-              className="drop-shadow-[0_0_8px_#38bdf8]"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="22"
-              stroke="#c084fc"
-              strokeWidth="1.5"
-              className="opacity-80 drop-shadow-[0_0_12px_#c084fc]"
+              stroke="#6366f1"
+              strokeWidth="1.2"
+              className="opacity-80"
             />
 
-            {/* The Singularity / Event Horizon (Absolute Pitch Black Void) */}
+            {/* 6. The Singularity / Event Horizon (Absolute Pitch Black Void) */}
             <circle
               cx="50"
               cy="50"
@@ -125,21 +102,21 @@ export default function MovingLogo() {
               fill="#000000"
             />
 
-            {/* Front Accretion Cut (Crosses in Front of Horizon for 3D Interstellar Depth) */}
+            {/* 7. Front Accretion Cut (Crosses in Front for 3D Depth, Sleek & Non-Glossy) */}
             <path
-              d="M 14 50 C 20 58, 80 58, 86 50"
-              stroke="url(#bhAccretion)"
-              strokeWidth="4.5"
-              strokeLinecap="round"
-              filter="url(#bhGlow)"
-            />
-            {/* Front Accretion Core Highlight */}
-            <path
-              d="M 22 51 C 32 57, 68 57, 78 51"
-              stroke="#ffffff"
-              strokeWidth="1.8"
+              d="M 16 50 C 22 57, 78 57, 84 50"
+              stroke="url(#bhAccretionMatte)"
+              strokeWidth="2.2"
               strokeLinecap="round"
               className="opacity-90"
+            />
+            {/* Subtle Inner Highlight Core */}
+            <path
+              d="M 26 51 C 34 55, 66 55, 74 51"
+              stroke="#e0e7ff"
+              strokeWidth="1"
+              strokeLinecap="round"
+              className="opacity-60"
             />
           </svg>
         </div>
