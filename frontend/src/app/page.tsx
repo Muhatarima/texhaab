@@ -33,9 +33,16 @@ export default function HomePage() {
   const [recipe, setRecipe] = useState<RecipeResponse | null>(null);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [showSimilarOrders, setShowSimilarOrders] = useState<boolean>(false);
 
   useEffect(() => {
     loadOptions();
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setShowSimilarOrders(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   async function loadOptions() {
@@ -109,6 +116,7 @@ export default function HomePage() {
     setFabWidth("");
     setRecipe(null);
     setRecipeError(null);
+    setShowSimilarOrders(false);
   }
 
   function handleCopySetup() {
@@ -547,69 +555,20 @@ export default function HomePage() {
                       )}
                     </div>
 
-                    {/* Factory Production Orders Validation from Excel */}
+                    {/* View Similar Orders Button */}
                     {recipe.historical_orders && recipe.historical_orders.length > 0 && (
-                      <div className="mt-5 pt-4 border-t border-purple-500/30">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="pt-3 border-t border-purple-500/25">
+                        <button
+                          type="button"
+                          onClick={() => setShowSimilarOrders(true)}
+                          className="w-full py-2.5 px-4 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 hover:border-purple-400 text-purple-200 hover:text-white text-xs font-bold tracking-wide transition flex items-center justify-between group shadow-sm"
+                        >
                           <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <h3 className="text-xs font-extrabold uppercase tracking-wider text-purple-200">
-                              Factory Orders Validation
-                            </h3>
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                            <span>View Similar Factory Orders ({recipe.historical_orders.length})</span>
                           </div>
-                          <span className="text-[10px] font-mono text-purple-300/90 bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/30">
-                            Excel Dataset Matches
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-300 mb-3">
-                          Past bulk production runs from the factory floor for this spec:
-                        </p>
-
-                        <div className="space-y-2.5">
-                          {recipe.historical_orders.map((ord, idx) => (
-                            <div
-                              key={idx}
-                              className="p-3 rounded-xl bg-[#0a0217]/90 border border-purple-500/30 hover:border-purple-400/50 transition-all text-xs"
-                            >
-                              <div className="flex justify-between items-center mb-1 font-mono">
-                                <span className="text-purple-300 font-bold">
-                                  Order #{ord.order_no}
-                                </span>
-                                <span className="text-slate-200 bg-purple-900/50 px-2 py-0.5 rounded text-[11px] font-semibold border border-purple-500/30">
-                                  {ord.buyer}
-                                </span>
-                              </div>
-
-                              <div className="text-slate-200 font-medium text-[11px] mb-2">
-                                {ord.fabrication} • {ord.gsm} GSM {ord.fab_dia ? `• ${ord.fab_dia}` : ""}
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-purple-500/20 text-[11px]">
-                                <div>
-                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Mc Setup</span>
-                                  <span className="font-mono font-bold text-white">{ord.mc_dia}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Stitch Length</span>
-                                  <span className="font-mono font-bold text-white">{ord.st_length}</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Proc Loss</span>
-                                  <span className="font-mono font-bold text-emerald-400">
-                                    {ord.proc_loss != null ? `${ord.proc_loss}%` : "—"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="mt-2 pt-1.5 border-t border-purple-500/15">
-                                <span className="text-slate-400 text-[9px] uppercase tracking-wider block">Mill Yarn Lot / Count:</span>
-                                <span className="font-mono text-purple-200 text-[10px] break-all leading-relaxed">
-                                  {ord.yarn_count}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                          <span className="text-purple-400 group-hover:translate-x-0.5 transition-transform text-sm">→</span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -618,6 +577,109 @@ export default function HomePage() {
             </div>
           </div>
         </main>
+
+        {/* Similar Orders Modal (Clean, Compact Industrial Table) */}
+        {showSimilarOrders && recipe?.historical_orders && (
+          <div
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setShowSimilarOrders(false)}
+          >
+            <div
+              className="glossy-panel rounded-2xl max-w-4xl w-full p-6 border border-purple-400/40 shadow-[0_0_50px_rgba(147,51,234,0.3)] space-y-4 max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-purple-500/30 pb-3">
+                <div>
+                  <div className="flex items-center space-x-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <h3 className="text-base sm:text-lg font-extrabold text-white">
+                      Similar Factory Orders
+                    </h3>
+                    <span className="text-xs font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/40">
+                      {recipe.historical_orders.length} Records
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Historical bulk production records from factory floor matching this specification.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSimilarOrders(false)}
+                  className="w-8 h-8 rounded-lg bg-purple-950/70 hover:bg-purple-800 text-slate-300 hover:text-white flex items-center justify-center border border-purple-500/40 transition text-sm font-bold"
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Content: Clean Compact Table */}
+              <div className="overflow-x-auto overflow-y-auto flex-1 rounded-xl border border-purple-500/30">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#120524] text-purple-200 uppercase font-mono text-[10px] tracking-wider border-b border-purple-500/30 sticky top-0">
+                    <tr>
+                      <th className="py-3 px-3.5">Order #</th>
+                      <th className="py-3 px-3">Buyer</th>
+                      <th className="py-3 px-3.5">Fabrication & GSM</th>
+                      <th className="py-3 px-3">Mc Setup</th>
+                      <th className="py-3 px-3">Stitch Length</th>
+                      <th className="py-3 px-3">Proc Loss</th>
+                      <th className="py-3 px-3.5">Mill Yarn Lot / Count</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-purple-500/20 bg-[#070112]/90">
+                    {recipe.historical_orders.map((ord, idx) => (
+                      <tr
+                        key={idx}
+                        className="hover:bg-purple-950/40 transition-colors"
+                      >
+                        <td className="py-3 px-3.5 font-mono font-bold text-purple-300 whitespace-nowrap">
+                          #{ord.order_no}
+                        </td>
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <span className="px-2 py-0.5 rounded bg-purple-900/60 border border-purple-500/40 text-[11px] font-semibold text-slate-200">
+                            {ord.buyer}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3.5 text-slate-200 font-medium">
+                          <div>{ord.fabrication}</div>
+                          <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                            {ord.gsm} GSM {ord.fab_dia ? `• ${ord.fab_dia}` : ""}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 font-mono font-bold text-white whitespace-nowrap">
+                          {ord.mc_dia}
+                        </td>
+                        <td className="py-3 px-3 font-mono font-bold text-white whitespace-nowrap">
+                          {ord.st_length}
+                        </td>
+                        <td className="py-3 px-3 font-mono font-bold text-emerald-400 whitespace-nowrap">
+                          {ord.proc_loss != null ? `${ord.proc_loss}%` : "—"}
+                        </td>
+                        <td className="py-3 px-3.5 font-mono text-purple-200 text-[11px]">
+                          {ord.yarn_count}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex justify-end pt-2 border-t border-purple-500/20">
+                <button
+                  type="button"
+                  onClick={() => setShowSimilarOrders(false)}
+                  className="py-2 px-5 rounded-xl bg-purple-900/80 hover:bg-purple-800 border border-purple-400/50 text-white font-bold text-xs transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
