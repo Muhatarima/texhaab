@@ -94,3 +94,9 @@ def test_recipe_real_models():
     assert isinstance(data["gauge"], int)
     assert isinstance(data["yarn_count"], int)
     assert isinstance(data["stitch_length"], float)
+    assert "historical_orders" in data
+    assert isinstance(data["historical_orders"], list)
+    if data["historical_orders"]:
+        first = data["historical_orders"][0]
+        assert "order_no" in first
+        assert "yarn_count" in first

@@ -16,6 +16,7 @@ MODEL_DIR = Path("ml/models")
 
 CATEGORIES = None
 MODELS = None
+FACTORY_REF = None
 
 
 def get_categories():
@@ -42,6 +43,18 @@ def get_models():
     return MODELS
 
 
+def get_factory_reference():
+    """Load real historical factory orders from Excel parquet."""
+    global FACTORY_REF
+    if FACTORY_REF is None:
+        ref_file = MODEL_DIR / "factory_reference.parquet"
+        if ref_file.exists():
+            FACTORY_REF = pd.read_parquet(ref_file)
+        else:
+            FACTORY_REF = pd.DataFrame()
+    return FACTORY_REF
+
+
 def get_options():
     """Return dropdown options for the frontend from categories.json."""
     cats = get_categories()
@@ -56,11 +69,11 @@ def get_options():
 
 
 def get_recipe(req):
-    """Turn one request (a dictionary) into a knitting recipe."""
+    """Turn one request (a dictionary) into a knitting recipe with factory data validation."""
     models = get_models()
     categories = get_categories()
 
-    # 1. Parse raw Fabrication text if provided (e.g. from Excel paste)
+    # 1. Parse raw Fabrication text if provided
     fabrication = req.get("fabrication")
     fabric_type = req.get("fabric_type")
     knit = req.get("knit")
@@ -78,7 +91,7 @@ def get_recipe(req):
         if not lycra:
             lycra = has_lycra(fabrication)
 
-    # 2. Parse raw Fab Dia text if provided (e.g. '70/ inch Open')
+    # 2. Parse raw Fab Dia text if provided
     form = req.get("form")
     fab_width = req.get("fab_width")
     fab_dia_text = req.get("fab_dia")
@@ -95,7 +108,6 @@ def get_recipe(req):
     elastane_pct = req.get("elastane_pct")
     viscose_pct = req.get("viscose_pct")
 
-    # If fiber percentages are omitted, extract them from fabrication or composition
     if cotton_pct is None and poly_pct is None and elastane_pct is None and viscose_pct is None:
         text = fabrication or f"{fabric_type or ''} {composition or ''}"
         if lycra and "LYCRA" not in text.upper() and "ELASTANE" not in text.upper():
@@ -107,7 +119,7 @@ def get_recipe(req):
     if not knit:
         knit = "Double" if (fabric_type and "Rib" in fabric_type) else "Single"
 
-    # 4. One-row table with the same columns the models were trained on
+    # 4. One-row table with the exact columns models were trained on
     row = pd.DataFrame([{
         "fabric_type": fabric_type,
         "knit": knit,
@@ -126,11 +138,11 @@ def get_recipe(req):
     }])
     X = prepare(row, categories=categories)
 
-    # 5. Gauge and Yarn Count
+    # 5. ML Model Predictions
     gauge = int(models["gauge"].predict(X)[0])
     yarn_count = int(models["yarn_count"].predict(X)[0])
 
-    # 6. Machine dia: chained with predicted gauge (top 2 suggestions, best first)
+    # Machine Dia (Chained with gauge)
     row_dia = row.copy()
     row_dia["gauge"] = gauge
     DIA_FEATURES = FEATURES + ["gauge"]
@@ -139,36 +151,74 @@ def get_recipe(req):
     best_two = models["mc_dia"].classes_[np.argsort(proba)[::-1][:2]]
     machine_dia = [int(d) for d in best_two]
 
-    # 7. Stitch length: chained with predicted gauge and yarn count
+    # Stitch Length (Chained with gauge & yarn_count)
     row_sl = row.copy()
     row_sl["gauge"], row_sl["yarn_count"] = gauge, yarn_count
     X_sl = prepare(row_sl, categories=categories, features=FEATURES + ["gauge", "yarn_count"])
     stitch_length = round(float(models["stitch_length"].predict(X_sl)[0]) * 2) / 2
 
-    # 8. Lycra denier, only for lycra fabrics
+    # Lycra Denier
     lycra_denier = None
     if row["lycra"][0]:
         X_ly = prepare(row, categories=categories,
                        features=[f for f in FEATURES if f != "lycra"])
         lycra_denier = int(models["lycra_denier"].predict(X_ly)[0])
 
-    # 9. Format industrial outputs cleanly without synthetic bluffing
+    # 6. Industrial notation
     machine_setup = [f"{d}X{gauge}" for d in machine_dia]
-    machine_setup_display = f"{machine_dia[0]}\" × {gauge}G (Alt: {machine_dia[1]}\" × {gauge}G)"
+    machine_setup_display = f"{machine_dia[0]}\" × {gauge}G (or {machine_dia[1]}\" × {gauge}G)"
 
-    # Combing / carding only applies to natural cotton
-    spinning = req.get("yarn_type")
-    has_cotton = (cotton_pct and cotton_pct > 0) or (composition and "Cotton" in composition)
+    # 7. Real Historical Orders directly from Excel dataset (Knit parameters.xlsx)
+    ref = get_factory_reference()
+    historical_orders = []
+    expected_proc_loss = None
 
-    yarn_tokens = [f"{yarn_count}s/1 Ne"]
-    if spinning and has_cotton:
-        yarn_tokens.append(spinning)
-    if composition:
-        yarn_tokens.append(composition)
+    if not ref.empty:
+        sub = ref
+        if composition and (sub["composition"] == composition).any():
+            sub = sub[sub["composition"] == composition]
 
-    yarn_spec = " ".join(yarn_tokens)
-    if lycra_denier:
-        yarn_spec += f" + {lycra_denier}D Lycra"
+        if fabric_type and (sub["fabric_type"] == fabric_type).any():
+            sub = sub[sub["fabric_type"] == fabric_type]
+
+        if lycra is not None and (sub["lycra"] == lycra).any():
+            lycra_match = sub[sub["lycra"] == lycra]
+            if not lycra_match.empty:
+                sub = lycra_match
+
+        gsm_val = float(req["gsm"])
+        gsm_match = sub[abs(sub["gsm"] - gsm_val) <= 25]
+        if not gsm_match.empty:
+            sub = gsm_match
+        else:
+            gsm_match = sub[abs(sub["gsm"] - gsm_val) <= 50]
+            if not gsm_match.empty:
+                sub = gsm_match
+
+        buyer_val = (req.get("buyer") or "").strip().upper()
+        if buyer_val and (sub["Buyer"] == buyer_val).any():
+            buyer_match = sub[sub["Buyer"] == buyer_val]
+            if not buyer_match.empty:
+                sub = buyer_match
+
+        valid_losses = sub["ProcLoss"].dropna()
+        valid_losses = valid_losses[valid_losses > 0]
+        if not valid_losses.empty:
+            expected_proc_loss = round(float(valid_losses.median()), 1)
+
+        records = sub.drop_duplicates(subset=["OrderNo"]).head(3)
+        for _, r in records.iterrows():
+            historical_orders.append({
+                "order_no": str(r["OrderNo"]),
+                "buyer": str(r["Buyer"]),
+                "fabrication": str(r["Fabrication"]),
+                "gsm": float(r["GSM"]) if pd.notna(r["GSM"]) else gsm_val,
+                "fab_dia": str(r["Fab Dia"]) if pd.notna(r["Fab Dia"]) else "",
+                "mc_dia": str(r["Mc Dia"]),
+                "yarn_count": str(r["Yarn Count"]),
+                "st_length": str(r["St Length"]),
+                "proc_loss": float(r["ProcLoss"]) if pd.notna(r["ProcLoss"]) and r["ProcLoss"] > 0 else None,
+            })
 
     return {
         "machine_dia": machine_dia,
@@ -178,5 +228,6 @@ def get_recipe(req):
         "stitch_length": stitch_length,
         "machine_setup": machine_setup,
         "machine_setup_display": machine_setup_display,
-        "yarn_spec": yarn_spec,
+        "expected_proc_loss": expected_proc_loss,
+        "historical_orders": historical_orders,
     }

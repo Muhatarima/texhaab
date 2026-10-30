@@ -30,6 +30,18 @@ export interface RecipeRequest {
   yarn_type?: string;
 }
 
+export interface HistoricalOrder {
+  order_no: string;
+  buyer: string;
+  fabrication: string;
+  gsm: number;
+  fab_dia: string;
+  mc_dia: string;
+  yarn_count: string;
+  st_length: string;
+  proc_loss: number | null;
+}
+
 export interface RecipeResponse {
   machine_dia: [number, number];
   gauge: number;
@@ -39,4 +51,7 @@ export interface RecipeResponse {
   machine_setup?: [string, string];
   machine_setup_display?: string;
   yarn_spec?: string;
+  expected_proc_loss?: number | null;
+  historical_orders?: HistoricalOrder[];
 }
+

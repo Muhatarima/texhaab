@@ -22,6 +22,7 @@ export default function HomePage() {
   const [gsm, setGsm] = useState<number | "">(160);
   const [fabricType, setFabricType] = useState<string>("Single Jersey");
   const [composition, setComposition] = useState<string>("Cotton");
+  const [fabrication, setFabrication] = useState<string>("");
   const [lycra, setLycra] = useState<boolean>(false);
   const [buyer, setBuyer] = useState<string>("");
   const [shade, setShade] = useState<ShadeType>("Medium");
@@ -78,6 +79,7 @@ export default function HomePage() {
       const requestData: RecipeRequest = {
         knit,
         gsm: Number(gsm),
+        fabrication: fabrication.trim() || undefined,
         fabric_type: fabricType || undefined,
         composition: composition || undefined,
         lycra,
@@ -102,6 +104,7 @@ export default function HomePage() {
     setGsm(160);
     setFabricType("Single Jersey");
     setComposition("Cotton");
+    setFabrication("");
     setLycra(false);
     setBuyer("");
     setShade("Medium");
@@ -113,15 +116,16 @@ export default function HomePage() {
 
   function handleCopySetup() {
     if (!recipe) return;
-    const text = [
-      `Order: ${knit} | ${gsm} GSM | ${fabricType || "N/A"} | ${composition || "N/A"}`,
+    const lines = [
+      `Order: ${knit} | ${gsm} GSM | ${fabricType || "N/A"} | ${composition || "N/A"}${buyer ? ` | Buyer: ${buyer}` : ""}`,
       `Machine Setup: ${recipe.machine_dia[0]}" × ${recipe.gauge}G (or ${recipe.machine_dia[1]}" × ${recipe.gauge}G)`,
-      `Yarn Count: ${recipe.yarn_count}s Ne${recipe.yarn_spec ? ` (${recipe.yarn_spec})` : ""}`,
+      `Yarn Count: ${recipe.yarn_count}s Ne`,
       `Stitch Length: ${recipe.stitch_length}`,
       lycra && recipe.lycra_denier ? `Lycra: ${recipe.lycra_denier}D` : `Lycra: None`,
-    ].join("\n");
+      recipe.expected_proc_loss != null ? `Est. Process Loss: ${recipe.expected_proc_loss}%` : null,
+    ].filter(Boolean).join("\n");
 
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(lines);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -220,6 +224,23 @@ export default function HomePage() {
                       ))}
                     </div>
                   </div>
+                </div>
+
+                {/* Tech Pack Fabrication Input (Optional) */}
+                <div>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
+                      Order Fabrication (Tech Pack Description)
+                    </label>
+                    <span className="text-[11px] text-purple-300 font-medium">Optional • Auto-parses</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={fabrication}
+                    onChange={(e) => setFabrication(e.target.value)}
+                    placeholder="e.g. S/J 100% Cotton or L S/J 95% Viscose 5% Elastane"
+                    className="w-full px-3.5 py-2.5 glossy-input text-sm text-white placeholder-slate-500 font-medium"
+                  />
                 </div>
 
                 {/* Row 2: Fabric Type & Composition */}
@@ -419,19 +440,26 @@ export default function HomePage() {
                       <div className="text-3xl font-black text-slate-700">--s Ne</div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div className="p-3.5 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
                           Stitch Length
                         </span>
-                        <div className="text-2xl font-black text-slate-700">--</div>
+                        <div className="text-xl font-black text-slate-700">--</div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                      <div className="p-3.5 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
                           Lycra Denier
                         </span>
-                        <div className="text-2xl font-black text-slate-700">--</div>
+                        <div className="text-xl font-black text-slate-700">--</div>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl bg-[#0a0217]/50 border border-purple-500/20">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300/60 block mb-1">
+                          Est. Proc Loss
+                        </span>
+                        <div className="text-xl font-black text-slate-700">--%</div>
                       </div>
                     </div>
                   </div>
@@ -467,11 +495,11 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Stitch Length and Lycra Specs */}
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* Stitch Length, Lycra Specs, and Expected Process Loss */}
+                    <div className="grid grid-cols-3 gap-2.5">
                       {/* Stitch Length */}
-                      <div className="p-4 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300 block mb-1">
+                      <div className="p-3.5 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block mb-1">
                           Stitch Length
                         </span>
                         <div className="text-2xl font-black text-white">
@@ -480,8 +508,8 @@ export default function HomePage() {
                       </div>
 
                       {/* Lycra Denier */}
-                      <div className="p-4 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300 block mb-1">
+                      <div className="p-3.5 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block mb-1">
                           Lycra Denier
                         </span>
                         <div className="text-2xl font-black text-white">
@@ -492,6 +520,23 @@ export default function HomePage() {
                             </div>
                           ) : (
                             <span className="text-xs font-medium text-slate-400">None</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Process Loss */}
+                      <div className="p-3.5 rounded-xl bg-[#0e031f]/90 border border-purple-500/40">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block mb-1">
+                          Est. Proc Loss
+                        </span>
+                        <div className="text-2xl font-black text-emerald-400">
+                          {recipe.expected_proc_loss != null ? (
+                            <div className="flex items-baseline space-x-0.5">
+                              <span>{recipe.expected_proc_loss}</span>
+                              <span className="text-xs font-semibold text-emerald-300">%</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs font-medium text-slate-400">N/A</span>
                           )}
                         </div>
                       </div>
@@ -515,7 +560,78 @@ export default function HomePage() {
                           {composition}
                         </span>
                       )}
+                      {buyer && (
+                        <span className="px-2.5 py-1 rounded bg-purple-950/80 border border-purple-500/40 font-semibold text-purple-300">
+                          {buyer}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Factory Production Orders Validation from Excel */}
+                    {recipe.historical_orders && recipe.historical_orders.length > 0 && (
+                      <div className="mt-5 pt-4 border-t border-purple-500/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <h3 className="text-xs font-extrabold uppercase tracking-wider text-purple-200">
+                              Factory Orders Validation
+                            </h3>
+                          </div>
+                          <span className="text-[10px] font-mono text-purple-300/90 bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/30">
+                            Excel Dataset Matches
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 mb-3">
+                          Past bulk production runs from the factory floor for this spec:
+                        </p>
+
+                        <div className="space-y-2.5">
+                          {recipe.historical_orders.map((ord, idx) => (
+                            <div
+                              key={idx}
+                              className="p-3 rounded-xl bg-[#0a0217]/90 border border-purple-500/30 hover:border-purple-400/50 transition-all text-xs"
+                            >
+                              <div className="flex justify-between items-center mb-1 font-mono">
+                                <span className="text-purple-300 font-bold">
+                                  Order #{ord.order_no}
+                                </span>
+                                <span className="text-slate-200 bg-purple-900/50 px-2 py-0.5 rounded text-[11px] font-semibold border border-purple-500/30">
+                                  {ord.buyer}
+                                </span>
+                              </div>
+
+                              <div className="text-slate-200 font-medium text-[11px] mb-2">
+                                {ord.fabrication} • {ord.gsm} GSM {ord.fab_dia ? `• ${ord.fab_dia}` : ""}
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-purple-500/20 text-[11px]">
+                                <div>
+                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Mc Setup</span>
+                                  <span className="font-mono font-bold text-white">{ord.mc_dia}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Stitch Length</span>
+                                  <span className="font-mono font-bold text-white">{ord.st_length}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Proc Loss</span>
+                                  <span className="font-mono font-bold text-emerald-400">
+                                    {ord.proc_loss != null ? `${ord.proc_loss}%` : "—"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="mt-2 pt-1.5 border-t border-purple-500/15">
+                                <span className="text-slate-400 text-[9px] uppercase tracking-wider block">Mill Yarn Lot / Count:</span>
+                                <span className="font-mono text-purple-200 text-[10px] break-all leading-relaxed">
+                                  {ord.yarn_count}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
