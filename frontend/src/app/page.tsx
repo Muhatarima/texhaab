@@ -22,7 +22,6 @@ export default function HomePage() {
   const [gsm, setGsm] = useState<number | "">(160);
   const [fabricType, setFabricType] = useState<string>("Single Jersey");
   const [composition, setComposition] = useState<string>("Cotton");
-  const [fabrication, setFabrication] = useState<string>("");
   const [lycra, setLycra] = useState<boolean>(false);
   const [buyer, setBuyer] = useState<string>("");
   const [shade, setShade] = useState<ShadeType>("Medium");
@@ -79,7 +78,6 @@ export default function HomePage() {
       const requestData: RecipeRequest = {
         knit,
         gsm: Number(gsm),
-        fabrication: fabrication.trim() || undefined,
         fabric_type: fabricType || undefined,
         composition: composition || undefined,
         lycra,
@@ -104,7 +102,6 @@ export default function HomePage() {
     setGsm(160);
     setFabricType("Single Jersey");
     setComposition("Cotton");
-    setFabrication("");
     setLycra(false);
     setBuyer("");
     setShade("Medium");
@@ -224,23 +221,6 @@ export default function HomePage() {
                       ))}
                     </div>
                   </div>
-                </div>
-
-                {/* Tech Pack Fabrication Input (Optional) */}
-                <div>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                      Order Fabrication (Tech Pack Description)
-                    </label>
-                    <span className="text-[11px] text-purple-300 font-medium">Optional • Auto-parses</span>
-                  </div>
-                  <input
-                    type="text"
-                    value={fabrication}
-                    onChange={(e) => setFabrication(e.target.value)}
-                    placeholder="e.g. S/J 100% Cotton or L S/J 95% Viscose 5% Elastane"
-                    className="w-full px-3.5 py-2.5 glossy-input text-sm text-white placeholder-slate-500 font-medium"
-                  />
                 </div>
 
                 {/* Row 2: Fabric Type & Composition */}
