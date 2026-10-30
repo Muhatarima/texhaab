@@ -463,13 +463,8 @@ export default function HomePage() {
                       <div className="text-3xl sm:text-4xl font-black text-white flex items-baseline space-x-2 my-1">
                         <span>{recipe.yarn_count}s</span>
                         <span className="text-sm font-semibold text-purple-300">Ne</span>
+                        <span className="text-xs text-slate-400 font-mono ml-2">({recipe.yarn_count}s/1)</span>
                       </div>
-
-                      {recipe.yarn_spec && (
-                        <div className="text-sm font-semibold text-purple-200 mt-2">
-                          {recipe.yarn_spec}
-                        </div>
-                      )}
                     </div>
 
                     {/* Stitch Length and Lycra Specs */}

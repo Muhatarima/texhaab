@@ -152,23 +152,21 @@ def get_recipe(req):
                        features=[f for f in FEATURES if f != "lycra"])
         lycra_denier = int(models["lycra_denier"].predict(X_ly)[0])
 
-    # 9. Format industrial outputs (Excel AxB notation & complete yarn specification)
+    # 9. Format industrial outputs cleanly without synthetic bluffing
     machine_setup = [f"{d}X{gauge}" for d in machine_dia]
     machine_setup_display = f"{machine_dia[0]}\" × {gauge}G (Alt: {machine_dia[1]}\" × {gauge}G)"
 
-    spinning = req.get("yarn_type") or "Combed Compact"
-    parts = []
-    if cotton_pct and cotton_pct > 0:
-        parts.append(f"{int(cotton_pct)}% Cotton")
-    if poly_pct and poly_pct > 0:
-        parts.append(f"{int(poly_pct)}% Poly")
-    if viscose_pct and viscose_pct > 0:
-        parts.append(f"{int(viscose_pct)}% Viscose")
-    if elastane_pct and elastane_pct > 0:
-        parts.append(f"{int(elastane_pct)}% Elastane")
-    comp_desc = " / ".join(parts) if parts else (composition or "100% Cotton")
+    # Combing / carding only applies to natural cotton
+    spinning = req.get("yarn_type")
+    has_cotton = (cotton_pct and cotton_pct > 0) or (composition and "Cotton" in composition)
 
-    yarn_spec = f"{yarn_count}s/1 {spinning} {comp_desc}"
+    yarn_tokens = [f"{yarn_count}s/1 Ne"]
+    if spinning and has_cotton:
+        yarn_tokens.append(spinning)
+    if composition:
+        yarn_tokens.append(composition)
+
+    yarn_spec = " ".join(yarn_tokens)
     if lycra_denier:
         yarn_spec += f" + {lycra_denier}D Lycra"
 
